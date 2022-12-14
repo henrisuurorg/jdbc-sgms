@@ -146,36 +146,7 @@ public class SchoolDAO {
         }
         return null;
     }
-
-    /**
-     * Searches for all accounts whose holder has the specified name.
-     *
-     * @param holderName The account holder's name
-     * @return A list with all accounts whose holder has the specified name, 
-     *         the list is empty if there are no such account.
-     * @throws SchoolDBException If failed to search for accounts.
-     */
-    public List<Account> findAccountsByHolder(String holderName) throws SchoolDBException {
-        String failureMsg = "Could not search for specified accounts.";
-        ResultSet result = null;
-        List<Account> accounts = new ArrayList<>();
-        try {
-            findAccountByNameStmt.setString(1, holderName);
-            result = findAccountByNameStmt.executeQuery();
-            while (result.next()) {
-                accounts.add(new Account(result.getString(ACCT_NO_COLUMN_NAME),
-                                         result.getString(HOLDER_COLUMN_NAME),
-                                         result.getInt(BALANCE_COLUMN_NAME)));
-            }
-            connection.commit();
-        } catch (SQLException sqle) {
-            handleException(failureMsg, sqle);
-        } finally {
-            closeResultSet(failureMsg, result);
-        }
-        return accounts;
-    }
-
+    
     public List<Instrument> findInstrumentsByType (String instrument) throws SchoolDBException {
         String failureMsg = "Could not search for specified instruments.";
         ResultSet result = null;
