@@ -85,16 +85,14 @@ public class BlockingInterpreter {
                         ctrl.deleteAccount(cmdLine.getParameter(0));
                         break;
                     case LIST:
-                        List<? extends AccountDTO> accounts = null;
+                        List<String> accounts = null;
                         if (cmdLine.getParameter(0).equals("")) {
                             accounts = ctrl.getAllAccounts();
                         } else {
-                            accounts = ctrl.getAccountsForHolder(cmdLine.getParameter(0));
+                            //accounts = ctrl.getAccountsForHolder(cmdLine.getParameter(0));
                         }
-                        for (AccountDTO account : accounts) {
-                            System.out.println("acct no: " + account.getAccountNo() + ", "
-                                             + "holder: " + account.getHolderName() + ", "
-                                             + "balance: " + account.getBalance());
+                        for (String account : accounts) {
+                            System.out.println("acct no: " + account);
                         }
                         break;
                     case DEPOSIT:

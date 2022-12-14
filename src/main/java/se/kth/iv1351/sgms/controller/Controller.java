@@ -78,7 +78,15 @@ public class Controller {
      *         accounts.
      * @throws AccountException If unable to retrieve accounts.
      */
-    public List<? extends AccountDTO> getAllAccounts() throws AccountException {
+//    public List<? extends AccountDTO> getAllAccounts() throws AccountException {
+//        try {
+//            return bankDb.findAllAccounts();
+//        } catch (Exception e) {
+//            throw new AccountException("Unable to list accounts.", e);
+//        }
+//    }
+
+    public List<String> getAllAccounts() throws AccountException {
         try {
             return bankDb.findAllAccounts();
         } catch (Exception e) {

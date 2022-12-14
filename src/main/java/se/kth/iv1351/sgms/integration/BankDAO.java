@@ -185,20 +185,34 @@ public class BankDAO {
      *         accounts.
      * @throws BankDBException If failed to search for accounts.
      */
-    public List<Account> findAllAccounts() throws BankDBException {
+//    public List<Account> findAllAccounts() throws BankDBException {
+//        String failureMsg = "Could not list accounts.";
+//        List<Account> accounts = new ArrayList<>();
+//        try (ResultSet result = findAllAccountsStmt.executeQuery()) {
+//            while (result.next()) {
+//                accounts.add(new Account(result.getString(ACCT_NO_COLUMN_NAME),
+//                                         result.getString(HOLDER_COLUMN_NAME),
+//                                         result.getInt(BALANCE_COLUMN_NAME)));
+//            }
+//            connection.commit();
+//        } catch (SQLException sqle) {
+//            handleException(failureMsg, sqle);
+//        }
+//        return accounts;
+//    }
+
+    public List<String> findAllAccounts() throws BankDBException {
         String failureMsg = "Could not list accounts.";
-        List<Account> accounts = new ArrayList<>();
+        List<String> students = new ArrayList<>();
         try (ResultSet result = findAllAccountsStmt.executeQuery()) {
             while (result.next()) {
-                accounts.add(new Account(result.getString(ACCT_NO_COLUMN_NAME),
-                                         result.getString(HOLDER_COLUMN_NAME),
-                                         result.getInt(BALANCE_COLUMN_NAME)));
+                students.add(result.getString("name"));
             }
             connection.commit();
         } catch (SQLException sqle) {
             handleException(failureMsg, sqle);
         }
-        return accounts;
+        return students;
     }
 
     /**
@@ -291,10 +305,12 @@ public class BankDAO {
             + HOLDER_TABLE_NAME + " h ON a." + HOLDER_FK_COLUMN_NAME
             + " = h." + HOLDER_PK_COLUMN_NAME + " WHERE h." + HOLDER_COLUMN_NAME + " = ?");
 
-        findAllAccountsStmt = connection.prepareStatement("SELECT h." + HOLDER_COLUMN_NAME
-            + ", a." + ACCT_NO_COLUMN_NAME + ", a." + BALANCE_COLUMN_NAME + " FROM "
-            + HOLDER_TABLE_NAME + " h INNER JOIN " + ACCT_TABLE_NAME + " a ON a."
-            + HOLDER_FK_COLUMN_NAME + " = h." + HOLDER_PK_COLUMN_NAME);
+//        findAllAccountsStmt = connection.prepareStatement("SELECT h." + HOLDER_COLUMN_NAME
+//            + ", a." + ACCT_NO_COLUMN_NAME + ", a." + BALANCE_COLUMN_NAME + " FROM "
+//            + HOLDER_TABLE_NAME + " h INNER JOIN " + ACCT_TABLE_NAME + " a ON a."
+//            + HOLDER_FK_COLUMN_NAME + " = h." + HOLDER_PK_COLUMN_NAME);
+
+        findAllAccountsStmt = connection.prepareStatement("SELECT * FROM student");
 
         changeBalanceStmt = connection.prepareStatement("UPDATE " + ACCT_TABLE_NAME
             + " SET " + BALANCE_COLUMN_NAME + " = ? WHERE " + ACCT_NO_COLUMN_NAME + " = ? ");
