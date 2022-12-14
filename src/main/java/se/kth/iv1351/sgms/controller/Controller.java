@@ -26,12 +26,9 @@ package se.kth.iv1351.sgms.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.kth.iv1351.sgms.integration.BankDAO;
-import se.kth.iv1351.sgms.integration.BankDBException;
-import se.kth.iv1351.sgms.model.Account;
-import se.kth.iv1351.sgms.model.AccountDTO;
-import se.kth.iv1351.sgms.model.AccountException;
-import se.kth.iv1351.sgms.model.RejectedException;
+import se.kth.iv1351.sgms.integration.SchoolDAO;
+import se.kth.iv1351.sgms.integration.SchoolDBException;
+import se.kth.iv1351.sgms.model.*;
 
 /**
  * This is the application's only controller, all calls to the model pass here.
@@ -40,15 +37,15 @@ import se.kth.iv1351.sgms.model.RejectedException;
  * the data, and finally tells the DAO to store the updated data (if any).
  */
 public class Controller {
-    private final BankDAO bankDb;
+    private final SchoolDAO schoolDb;
 
     /**
      * Creates a new instance, and retrieves a connection to the database.
      * 
-     * @throws BankDBException If unable to connect to the database.
+     * @throws SchoolDBException If unable to connect to the database.
      */
-    public Controller() throws BankDBException {
-        bankDb = new BankDAO();
+    public Controller() throws SchoolDBException {
+        schoolDb = new SchoolDAO();
     }
 
     /**
@@ -65,7 +62,7 @@ public class Controller {
         }
 
         try {
-            bankDb.createAccount(new Account(holderName));
+            schoolDb.createAccount(new Account(holderName));
         } catch (Exception e) {
             throw new AccountException(failureMsg, e);
         }
@@ -86,9 +83,9 @@ public class Controller {
 //        }
 //    }
 
-    public List<String> getAllAccounts() throws AccountException {
+    public List<? extends InstrumentDTO> getAllInstruments() throws AccountException {
         try {
-            return bankDb.findAllAccounts();
+            return schoolDb.findAllInstruments();
         } catch (Exception e) {
             throw new AccountException("Unable to list accounts.", e);
         }
@@ -109,7 +106,7 @@ public class Controller {
         }
 
         try {
-            return bankDb.findAccountsByHolder(holderName);
+            return schoolDb.findAccountsByHolder(holderName);
         } catch (Exception e) {
             throw new AccountException("Could not search for account.", e);
         }
@@ -129,7 +126,7 @@ public class Controller {
         }
 
         try {
-            return bankDb.findAccountByAcctNo(acctNo, false);
+            return schoolDb.findAccountByAcctNo(acctNo, false);
         } catch (Exception e) {
             throw new AccountException("Could not search for account.", e);
         }
@@ -152,10 +149,10 @@ public class Controller {
         }
 
         try {
-            Account acct = bankDb.findAccountByAcctNo(acctNo, true);
+            Account acct = schoolDb.findAccountByAcctNo(acctNo, true);
             acct.deposit(amt);
-            bankDb.updateAccount(acct);
-        } catch (BankDBException bdbe) {
+            schoolDb.updateAccount(acct);
+        } catch (SchoolDBException bdbe) {
             throw new AccountException(failureMsg, bdbe);
         } catch (Exception e) {
             commitOngoingTransaction(failureMsg);
@@ -180,10 +177,10 @@ public class Controller {
         }
 
         try {
-            Account acct = bankDb.findAccountByAcctNo(acctNo, true);
+            Account acct = schoolDb.findAccountByAcctNo(acctNo, true);
             acct.withdraw(amt);
-            bankDb.updateAccount(acct);
-        } catch (BankDBException bdbe) {
+            schoolDb.updateAccount(acct);
+        } catch (SchoolDBException bdbe) {
             throw new AccountException(failureMsg, bdbe);
         } catch (Exception e) {
             commitOngoingTransaction(failureMsg);
@@ -193,8 +190,8 @@ public class Controller {
 
     private void commitOngoingTransaction(String failureMsg) throws AccountException {
         try {
-            bankDb.commit();
-        } catch (BankDBException bdbe) {
+            schoolDb.commit();
+        } catch (SchoolDBException bdbe) {
             throw new AccountException(failureMsg, bdbe);
         }
     }
@@ -213,7 +210,7 @@ public class Controller {
         }
 
         try {
-            bankDb.deleteAccount(acctNo);
+            schoolDb.deleteAccount(acctNo);
         } catch (Exception e) {
             throw new AccountException(failureMsg, e);
         }

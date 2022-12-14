@@ -33,13 +33,14 @@ import java.util.List;
 
 import se.kth.iv1351.sgms.model.Account;
 import se.kth.iv1351.sgms.model.AccountDTO;
+import se.kth.iv1351.sgms.model.Instrument;
 
 /**
  * This data access object (DAO) encapsulates all database calls in the bank
  * application. No code outside this class shall have any knowledge about the
  * database.
  */
-public class BankDAO {
+public class SchoolDAO {
     private static final String HOLDER_TABLE_NAME = "holder";
     private static final String HOLDER_PK_COLUMN_NAME = "holder_id";
     private static final String HOLDER_COLUMN_NAME = "name";
@@ -48,6 +49,12 @@ public class BankDAO {
     private static final String BALANCE_COLUMN_NAME = "balance";
     private static final String HOLDER_FK_COLUMN_NAME = HOLDER_PK_COLUMN_NAME;
 
+    private static final String INSTRUMENT_TABLE_NAME = "rental_instrument";
+    private static final String INSTRUMENT_INSTRUMENT_COLUMN_NAME = "instrument";
+    private static final String INSTRUMENT_PK_COLUMN_NAME = "rental_instrument_id";
+    private static final String INSTRUMENT_BRAND_COLUMN_NAME = "brand";
+    private static final String INSTRUMENT_CATEGORY_COLUMN_NAME = "category";
+
     private Connection connection;
     private PreparedStatement createHolderStmt;
     private PreparedStatement findHolderPKStmt;
@@ -55,19 +62,19 @@ public class BankDAO {
     private PreparedStatement findAccountByNameStmt;
     private PreparedStatement findAccountByAcctNoStmt;
     private PreparedStatement findAccountByAcctNoStmtLockingForUpdate;
-    private PreparedStatement findAllAccountsStmt;
+    private PreparedStatement findAllInstrumentsStmt;
     private PreparedStatement deleteAccountStmt;
     private PreparedStatement changeBalanceStmt;
 
     /**
      * Constructs a new DAO object connected to the bank database.
      */
-    public BankDAO() throws BankDBException {
+    public SchoolDAO() throws SchoolDBException {
         try {
             connectToSgmsDB();
             prepareStatements();
         } catch (ClassNotFoundException | SQLException exception) {
-            throw new BankDBException("Could not connect to datasource.", exception);
+            throw new SchoolDBException("Could not connect to datasource.", exception);
         }
     }
 
@@ -75,9 +82,9 @@ public class BankDAO {
      * Creates a new account.
      *
      * @param account The account to create.
-     * @throws BankDBException If failed to create the specified account.
+     * @throws SchoolDBException If failed to create the specified account.
      */
-    public void createAccount(AccountDTO account) throws BankDBException {
+    public void createAccount(AccountDTO account) throws SchoolDBException {
         String failureMsg = "Could not create the account: " + account;
         int updatedRows = 0;
         try {
@@ -117,10 +124,10 @@ public class BankDAO {
      *                      be committed when this method returns.
      * @return The account with the specified account number, or <code>null</code> if 
      *         there is no such account.
-     * @throws BankDBException If failed to search for the account.
+     * @throws SchoolDBException If failed to search for the account.
      */
     public Account findAccountByAcctNo(String acctNo, boolean lockExclusive)
-                                       throws BankDBException {
+                                       throws SchoolDBException {
     PreparedStatement stmtToExecute;
         if (lockExclusive) {
             stmtToExecute = findAccountByAcctNoStmtLockingForUpdate;
@@ -155,9 +162,9 @@ public class BankDAO {
      * @param holderName The account holder's name
      * @return A list with all accounts whose holder has the specified name, 
      *         the list is empty if there are no such account.
-     * @throws BankDBException If failed to search for accounts.
+     * @throws SchoolDBException If failed to search for accounts.
      */
-    public List<Account> findAccountsByHolder(String holderName) throws BankDBException {
+    public List<Account> findAccountsByHolder(String holderName) throws SchoolDBException {
         String failureMsg = "Could not search for specified accounts.";
         ResultSet result = null;
         List<Account> accounts = new ArrayList<>();
@@ -183,36 +190,20 @@ public class BankDAO {
      *
      * @return A list with all existing accounts. The list is empty if there are no
      *         accounts.
-     * @throws BankDBException If failed to search for accounts.
+     * @throws SchoolDBException If failed to search for accounts.
      */
-//    public List<Account> findAllAccounts() throws BankDBException {
-//        String failureMsg = "Could not list accounts.";
-//        List<Account> accounts = new ArrayList<>();
-//        try (ResultSet result = findAllAccountsStmt.executeQuery()) {
-//            while (result.next()) {
-//                accounts.add(new Account(result.getString(ACCT_NO_COLUMN_NAME),
-//                                         result.getString(HOLDER_COLUMN_NAME),
-//                                         result.getInt(BALANCE_COLUMN_NAME)));
-//            }
-//            connection.commit();
-//        } catch (SQLException sqle) {
-//            handleException(failureMsg, sqle);
-//        }
-//        return accounts;
-//    }
-
-    public List<String> findAllAccounts() throws BankDBException {
+    public List<Instrument> findAllInstruments() throws SchoolDBException {
         String failureMsg = "Could not list accounts.";
-        List<String> students = new ArrayList<>();
-        try (ResultSet result = findAllAccountsStmt.executeQuery()) {
+        List<Instrument> instruments = new ArrayList<>();
+        try (ResultSet result = findAllInstrumentsStmt.executeQuery()) {
             while (result.next()) {
-                students.add(result.getString("name"));
+                instruments.add( new Instrument(result.getString(INSTRUMENT_PK_COLUMN_NAME),result.getString(INSTRUMENT_INSTRUMENT_COLUMN_NAME), result.getString(INSTRUMENT_BRAND_COLUMN_NAME), result.getString(INSTRUMENT_CATEGORY_COLUMN_NAME)));
             }
             connection.commit();
         } catch (SQLException sqle) {
             handleException(failureMsg, sqle);
         }
-        return students;
+        return instruments;
     }
 
     /**
@@ -221,9 +212,9 @@ public class BankDAO {
      * <code>AccountDTO</code>.
      *
      * @param account The account to update.
-     * @throws BankDBException If unable to update the specified account.
+     * @throws SchoolDBException If unable to update the specified account.
      */
-    public void updateAccount(AccountDTO account) throws BankDBException {
+    public void updateAccount(AccountDTO account) throws SchoolDBException {
         String failureMsg = "Could not update the account: " + account;
         try {
             changeBalanceStmt.setInt(1, account.getBalance());
@@ -242,9 +233,9 @@ public class BankDAO {
      * Deletes the account with the specified account number.
      *
      * @param acctNo The account to delete.
-     * @throws BankDBException If unable to delete the specified account.
+     * @throws SchoolDBException If unable to delete the specified account.
      */
-    public void deleteAccount(String acctNo) throws BankDBException {
+    public void deleteAccount(String acctNo) throws SchoolDBException {
         String failureMsg = "Could not delete account: " + acctNo;
         try {
             deleteAccountStmt.setString(1, acctNo);
@@ -261,9 +252,9 @@ public class BankDAO {
     /**
      * Commits the current transaction.
      * 
-     * @throws BankDBException If unable to commit the current transaction.
+     * @throws SchoolDBException If unable to commit the current transaction.
      */
-    public void commit() throws BankDBException {
+    public void commit() throws SchoolDBException {
         try {
             connection.commit();
         } catch (SQLException e) {
@@ -305,12 +296,7 @@ public class BankDAO {
             + HOLDER_TABLE_NAME + " h ON a." + HOLDER_FK_COLUMN_NAME
             + " = h." + HOLDER_PK_COLUMN_NAME + " WHERE h." + HOLDER_COLUMN_NAME + " = ?");
 
-//        findAllAccountsStmt = connection.prepareStatement("SELECT h." + HOLDER_COLUMN_NAME
-//            + ", a." + ACCT_NO_COLUMN_NAME + ", a." + BALANCE_COLUMN_NAME + " FROM "
-//            + HOLDER_TABLE_NAME + " h INNER JOIN " + ACCT_TABLE_NAME + " a ON a."
-//            + HOLDER_FK_COLUMN_NAME + " = h." + HOLDER_PK_COLUMN_NAME);
-
-        findAllAccountsStmt = connection.prepareStatement("SELECT * FROM student");
+        findAllInstrumentsStmt = connection.prepareStatement("SELECT * FROM " + INSTRUMENT_TABLE_NAME);
 
         changeBalanceStmt = connection.prepareStatement("UPDATE " + ACCT_TABLE_NAME
             + " SET " + BALANCE_COLUMN_NAME + " = ? WHERE " + ACCT_NO_COLUMN_NAME + " = ? ");
@@ -318,7 +304,7 @@ public class BankDAO {
         deleteAccountStmt = connection.prepareStatement("DELETE FROM " + ACCT_TABLE_NAME
             + " WHERE " + ACCT_NO_COLUMN_NAME + " = ?");
     }
-    private void handleException(String failureMsg, Exception cause) throws BankDBException {
+    private void handleException(String failureMsg, Exception cause) throws SchoolDBException {
         String completeFailureMsg = failureMsg;
         try {
             connection.rollback();
@@ -328,17 +314,17 @@ public class BankDAO {
         }
 
         if (cause != null) {
-            throw new BankDBException(failureMsg, cause);
+            throw new SchoolDBException(failureMsg, cause);
         } else {
-            throw new BankDBException(failureMsg);
+            throw new SchoolDBException(failureMsg);
         }
     }
 
-    private void closeResultSet(String failureMsg, ResultSet result) throws BankDBException {
+    private void closeResultSet(String failureMsg, ResultSet result) throws SchoolDBException {
         try {
             result.close();
         } catch (Exception e) {
-            throw new BankDBException(failureMsg + " Could not close result set.", e);
+            throw new SchoolDBException(failureMsg + " Could not close result set.", e);
         }
     }
 

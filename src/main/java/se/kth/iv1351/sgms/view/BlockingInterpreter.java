@@ -29,6 +29,8 @@ import java.util.Scanner;
 
 import se.kth.iv1351.sgms.controller.Controller;
 import se.kth.iv1351.sgms.model.AccountDTO;
+import se.kth.iv1351.sgms.model.Instrument;
+import se.kth.iv1351.sgms.model.InstrumentDTO;
 
 /**
  * Reads and interprets user commands. This command interpreter is blocking, the user
@@ -85,14 +87,17 @@ public class BlockingInterpreter {
                         ctrl.deleteAccount(cmdLine.getParameter(0));
                         break;
                     case LIST:
-                        List<String> accounts = null;
+                        List<? extends InstrumentDTO> instruments = null;
                         if (cmdLine.getParameter(0).equals("")) {
-                            accounts = ctrl.getAllAccounts();
+                            instruments = ctrl.getAllInstruments();
                         } else {
                             //accounts = ctrl.getAccountsForHolder(cmdLine.getParameter(0));
                         }
-                        for (String account : accounts) {
-                            System.out.println("acct no: " + account);
+                        for (InstrumentDTO inst : instruments) {
+                            System.out.println("id: " + inst.getRentalInstrumentId() + ", "
+                                    + "instrument: " + inst.getInstrument() + ", "
+                                    + "brand: " + inst.getBrand() + ", "
+                                    + "category: " + inst.getCategory());
                         }
                         break;
                     case DEPOSIT:
