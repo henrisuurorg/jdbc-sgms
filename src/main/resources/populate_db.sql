@@ -1,6 +1,6 @@
 TRUNCATE additional_contact_person ,compensation_schema ,ensemble ,ensemble_instrument ,group_lesson ,individual_lesson ,instructor ,instructor_instrument ,instrument ,instrument_fee ,pricing_schema ,rental_agreement ,rental_instrument ,sibling_relationship ,student ,student_ensemble ,student_group_lesson, "level", lesson_historic, student_lesson, last_backup;
 
-DROP VIEW students_with_siblings;
+--DROP VIEW students_with_siblings;
 
 insert into student (personal_number, name, phone, email, address_line, zip, city) values ('648223605602', 'Adam', '787-135-5178', 'wgenty0@msn.com', 'International', '68877', 'Maae');
 insert into student (personal_number, name, phone, email, address_line, zip, city) values ('137996947403', 'Johan', '455-624-6031', 'idi1@sohu.com', 'Fairview', '97151', 'Oleksandriya');
@@ -55,11 +55,29 @@ insert into instructor_instrument (instructor_id, instrument_id) values ((SELECT
 insert into instructor_instrument (instructor_id, instrument_id) values ((SELECT instructor_id FROM instructor WHERE name = 'Melissa'),(SELECT instrument_id FROM instrument WHERE instrument = 'Tambourine'));
 
 insert into rental_instrument (instrument, brand, category) values ('Guitar', 'Chevrolet', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '1', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '2', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '3', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '4', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '5', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '6', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '7', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '8', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Guitar', '9', 'String');
 insert into rental_instrument (instrument, brand, category) values ('Piano', 'Steinway', 'String');
-insert into rental_instrument (instrument, brand, category) values ('Violin', 'Pontiac', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Violin', '1', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Violin', '2', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Violin', '3', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Violin', '4', 'String');
+insert into rental_instrument (instrument, brand, category) values ('Violin', '5', 'String');
 insert into rental_instrument (instrument, brand, category) values ('Base', 'Toyota', 'String');
 insert into rental_instrument (instrument, brand, category) values ('Harp', 'Subaru', 'String');
-insert into rental_instrument (instrument, brand, category) values ('Flute', 'Mazda', 'Wind');
+insert into rental_instrument (instrument, brand, category) values ('Flute', '1', 'Wind');
+insert into rental_instrument (instrument, brand, category) values ('Flute', '2', 'Wind');
+insert into rental_instrument (instrument, brand, category) values ('Flute', '3', 'Wind');
+insert into rental_instrument (instrument, brand, category) values ('Flute', '4', 'Wind');
+insert into rental_instrument (instrument, brand, category) values ('Flute', '5', 'Wind');
+insert into rental_instrument (instrument, brand, category) values ('Flute', '6', 'Wind');
 insert into rental_instrument (instrument, brand, category) values ('Saxophone', 'Mercury', 'Wind');
 insert into rental_instrument (instrument, brand, category) values ('Trumpet', 'Ford', 'Wind');
 insert into rental_instrument (instrument, brand, category) values ('Triangle', 'Lincoln', 'Percussion');
@@ -83,12 +101,30 @@ insert into sibling_relationship (first_student_id, second_student_id) values ((
 
 
 
-insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar'), 300, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = 'Chevrolet'), 300, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '1'), 100, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '2'), 200, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '3'), 300, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '4'), 400, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '5'), 500, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '6'), 600, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '7'), 700, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '8'), 800, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '9'), 900, '07/02/2022');
 insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Piano'), 300, '07/02/2022');
-insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin'), 300, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin' AND brand = '1'), 100, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin' AND brand = '2'), 200, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin' AND brand = '3'), 300, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin' AND brand = '4'), 400, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin' AND brand = '5'), 500, '07/02/2022');
 insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Base'), 300, '07/02/2022');
 insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Harp'), 300, '07/02/2022');
-insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Flute'), 300, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Flute' AND brand = '1'), 100, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Flute' AND brand = '2'), 200, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Flute' AND brand = '3'), 300, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Flute' AND brand = '4'), 400, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Flute' AND brand = '5'), 500, '07/02/2022');
+insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Flute' AND brand = '6'), 600, '07/02/2022');
 insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Saxophone'), 300, '07/02/2022');
 insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Trumpet'), 300, '07/02/2022');
 insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Triangle'), 300, '07/02/2022');
@@ -96,7 +132,10 @@ insert into instrument_fee (rental_instrument_id, fee, starting_from) values ((S
 
 insert into rental_agreement (date_rented, date_returned, student_id, rental_instrument_id) values ('10/02/2022', null, (SELECT student_id FROM student WHERE name = 'Adam'), (SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Piano'));
 insert into rental_agreement (date_rented, date_returned, student_id, rental_instrument_id) values ('10/02/2022', null, (SELECT student_id FROM student WHERE name = 'Chai'), (SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Base'));
-insert into rental_agreement (date_rented, date_returned, student_id, rental_instrument_id) values ('10/02/2022', null, (SELECT student_id FROM student WHERE name = 'William'), (SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin'));
+insert into rental_agreement (date_rented, date_returned, student_id, rental_instrument_id) values ('10/02/2022', null, (SELECT student_id FROM student WHERE name = 'William'), (SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin' AND brand = '1'));
+insert into rental_agreement (date_rented, date_returned, student_id, rental_instrument_id) values ('10/02/2022', null, (SELECT student_id FROM student WHERE name = 'William'), (SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Violin' AND brand = '2'));
+insert into rental_agreement (date_rented, date_returned, student_id, rental_instrument_id) values ('10/02/2022', null, (SELECT student_id FROM student WHERE name = 'James'), (SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '1'));
+insert into rental_agreement (date_rented, date_returned, student_id, rental_instrument_id) values ('10/02/2022', null, (SELECT student_id FROM student WHERE name = 'James'), (SELECT rental_instrument_id FROM rental_instrument WHERE instrument = 'Guitar' AND brand = '2'));
 
 
 insert into ensemble (min_no_of_students, max_no_of_students, genre, time, date, instructor_id, pricing_schema_id, compensation_schema_id) values (1, 10, 'Jazz', '18:00', '10/02/2022', (SELECT instructor_id FROM instructor WHERE name = 'Olivia'), (SELECT pricing_schema_id FROM pricing_schema),(SELECT compensation_schema_id FROM compensation_schema));
@@ -124,7 +163,7 @@ insert into level(level) values ('advanced');
 insert into student_ensemble(ensemble_id, student_id) values ((SELECT ensemble_id FROM ensemble WHERE date = '10/02/2022' AND time = '18:00'), (SELECT student_id FROM student WHERE name = 'Adam'));
 insert into student_ensemble(ensemble_id, student_id) values ((SELECT ensemble_id FROM ensemble WHERE date = '12/01/2022' AND time = '20:00'), (SELECT student_id FROM student WHERE name = 'Filip'));
 
-insert into student_ensemble(ensemble_id, student_id) values ((SELECT ensemble_id FROM ensemble WHERE date = '12/07/2022' AND time = '19:00'), (SELECT student_id FROM student WHERE name = 'Filip')); -- 3/3 FULL booked 
+insert into student_ensemble(ensemble_id, student_id) values ((SELECT ensemble_id FROM ensemble WHERE date = '12/07/2022' AND time = '19:00'), (SELECT student_id FROM student WHERE name = 'Filip')); -- 3/3 FULL booked
 insert into student_ensemble(ensemble_id, student_id) values ((SELECT ensemble_id FROM ensemble WHERE date = '12/07/2022' AND time = '19:00'), (SELECT student_id FROM student WHERE name = 'Adam'));
 insert into student_ensemble(ensemble_id, student_id) values ((SELECT ensemble_id FROM ensemble WHERE date = '12/07/2022' AND time = '19:00'), (SELECT student_id FROM student WHERE name = 'Chai'));
 
@@ -162,6 +201,7 @@ insert into individual_lesson (time, date, instructor_id, student_id, instrument
 insert into individual_lesson (time, date, instructor_id, student_id, instrument_id, pricing_schema_id ,compensation_schema_id ,level_id) values ('15:00', '12/01/2022', (SELECT instructor_id FROM instructor WHERE name = 'Sarah'), (SELECT student_id FROM student WHERE name = 'Chai'),(SELECT instrument_id FROM instrument WHERE instrument = 'Piano'), (SELECT pricing_schema_id FROM pricing_schema), (SELECT compensation_schema_id FROM compensation_schema), (SELECT level_id FROM level WHERE level = 'beginner'));
 insert into individual_lesson (time, date, instructor_id, student_id, instrument_id, pricing_schema_id ,compensation_schema_id ,level_id) values ('20:00', '12/01/2022', (SELECT instructor_id FROM instructor WHERE name = 'Sarah'), (SELECT student_id FROM student WHERE name = 'Chai'),(SELECT instrument_id FROM instrument WHERE instrument = 'Piano'), (SELECT pricing_schema_id FROM pricing_schema), (SELECT compensation_schema_id FROM compensation_schema), (SELECT level_id FROM level WHERE level = 'beginner'));
 insert into individual_lesson (time, date, instructor_id, student_id, instrument_id, pricing_schema_id ,compensation_schema_id ,level_id) values ('23:00', '12/01/2022', (SELECT instructor_id FROM instructor WHERE name = 'Sarah'), (SELECT student_id FROM student WHERE name = 'William'),(SELECT instrument_id FROM instrument WHERE instrument = 'Piano'), (SELECT pricing_schema_id FROM pricing_schema), (SELECT compensation_schema_id FROM compensation_schema), (SELECT level_id FROM level WHERE level = 'beginner'));
+insert into individual_lesson (time, date, instructor_id, student_id, instrument_id, pricing_schema_id ,compensation_schema_id ,level_id) values ('23:00', '12/01/2022', (SELECT instructor_id FROM instructor WHERE name = 'Sarah'), NULL,(SELECT instrument_id FROM instrument WHERE instrument = 'Piano'), (SELECT pricing_schema_id FROM pricing_schema), (SELECT compensation_schema_id FROM compensation_schema), (SELECT level_id FROM level WHERE level = 'beginner'));
 
 
 insert into group_lesson (min_no_of_students, max_no_of_students, time, date, instructor_id, pricing_schema_id, compensation_schema_id, level_id, instrument_id) values (1, 8, '18:00', '10/02/2022', (SELECT instructor_id FROM instructor WHERE name = 'Samantha'), (SELECT pricing_schema_id FROM pricing_schema),(SELECT compensation_schema_id FROM compensation_schema), (SELECT level_id FROM level WHERE level = 'advanced'), (SELECT instrument_id FROM instrument WHERE instrument = 'Harp'));
