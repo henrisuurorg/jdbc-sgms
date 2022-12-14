@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  */
 
-package se.kth.iv1351.bankjdbc.integration;
+package se.kth.iv1351.sgms.integration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,8 +31,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.kth.iv1351.bankjdbc.model.Account;
-import se.kth.iv1351.bankjdbc.model.AccountDTO;
+import se.kth.iv1351.sgms.model.Account;
+import se.kth.iv1351.sgms.model.AccountDTO;
 
 /**
  * This data access object (DAO) encapsulates all database calls in the bank
@@ -64,7 +64,7 @@ public class BankDAO {
      */
     public BankDAO() throws BankDBException {
         try {
-            connectToBankDB();
+            connectToSgmsDB();
             prepareStatements();
         } catch (ClassNotFoundException | SQLException exception) {
             throw new BankDBException("Could not connect to datasource.", exception);
@@ -257,11 +257,9 @@ public class BankDAO {
         }
     }
 
-    private void connectToBankDB() throws ClassNotFoundException, SQLException {
-        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bankdb",
+    private void connectToSgmsDB() throws ClassNotFoundException, SQLException {
+        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/sgms",
                                                  "postgres", "postgres");
-        // connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankdb",
-        //                                          "mysql", "mysql");
         connection.setAutoCommit(false);
     }
 

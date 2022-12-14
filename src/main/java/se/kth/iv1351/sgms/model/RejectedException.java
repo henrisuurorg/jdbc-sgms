@@ -21,19 +21,19 @@
  * THE SOFTWARE.
  */
 
-package se.kth.iv1351.bankjdbc.model;
+package se.kth.iv1351.sgms.model;
 
 /**
- * Thrown when create, read or delete of an account fails.
+ * Thrown when deposit or withdrawal fails.
  */
-public class AccountException extends Exception {
+public class RejectedException extends Exception {
 
     /**
      * Create a new instance thrown because of the specified reason.
      *
      * @param reason Why the exception was thrown.
      */
-    public AccountException(String reason) {
+    public RejectedException(String reason) {
         super(reason);
     }
 
@@ -43,7 +43,7 @@ public class AccountException extends Exception {
      * @param reason    Why the exception was thrown.
      * @param rootCause The exception that caused this exception to be thrown.
      */
-    public AccountException(String reason, Throwable rootCause) {
+    public RejectedException(String reason, Throwable rootCause) {
         super(reason, rootCause);
     }
 }

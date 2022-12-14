@@ -1,14 +1,13 @@
 /*
- * The MIT License
- *
- * Copyright 2017 Leif Lindbäck <leifl@kth.se>.
+ * The MIT License (MIT)
+ * Copyright (c) 2020 Leif Lindbäck
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
+ * in the Software without restriction,including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * furnished to do so,subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
@@ -22,25 +21,24 @@
  * THE SOFTWARE.
  */
 
-package se.kth.iv1351.bankjdbc.startup;
-
-import se.kth.iv1351.bankjdbc.controller.Controller;
-import se.kth.iv1351.bankjdbc.integration.BankDBException;
-import se.kth.iv1351.bankjdbc.view.BlockingInterpreter;
+package se.kth.iv1351.sgms.model;
 
 /**
- * Starts the bank client.
+ * Specifies a read-only view of an account.
  */
-public class Main {
+public interface AccountDTO {
     /**
-     * @param args There are no command line arguments.
+     * @return The account number.
      */
-    public static void main(String[] args) {
-        try {
-        new BlockingInterpreter(new Controller()).handleCmds();
-        } catch(BankDBException bdbe) {
-            System.out.println("Could not connect to Bank db.");
-            bdbe.printStackTrace();
-        }
-    }
+    public String getAccountNo();
+
+    /**
+     * @return The balance.
+     */
+    public int getBalance();
+
+    /**
+     * @return The holder's name.
+     */
+    public String getHolderName();
 }

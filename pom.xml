@@ -36,7 +36,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>se.kth.iv1351.bankjdbc.startup.Main</mainClass>
+                    <mainClass>se.kth.iv1351.sgms.startup.Main</mainClass>
                     <cleanupDaemonThreads>false</cleanupDaemonThreads>
                 </configuration>
             </plugin>

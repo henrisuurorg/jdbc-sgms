@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package se.kth.iv1351.bankjdbc.view;
+package se.kth.iv1351.sgms.view;
 
 /**
  * Defines all commands that can be performed by a user of the chat application.
