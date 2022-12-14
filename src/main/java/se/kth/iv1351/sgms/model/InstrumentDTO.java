@@ -34,4 +34,6 @@ public interface InstrumentDTO {
     public String getBrand();
 
     public String getCategory();
+
+    public String getFee();
 }

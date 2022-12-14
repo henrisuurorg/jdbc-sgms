@@ -31,13 +31,15 @@ public class Instrument implements InstrumentDTO {
     private String instrument;
     private String brand;
     private String category;
+    private String fee;
 
 
-    public Instrument(String rentalInstrumentId, String instrument, String brand, String category) {
+    public Instrument(String rentalInstrumentId, String instrument, String brand, String category, String fee) {
         this.rentalInstrumentId = rentalInstrumentId;
         this.instrument = instrument;
         this.brand = brand;
         this.category = category;
+        this.fee = fee;
     }
 
     public String getRentalInstrumentId() {
@@ -54,6 +56,10 @@ public class Instrument implements InstrumentDTO {
 
     public String getCategory() {
         return category;
+    }
+
+    public String getFee() {
+        return fee;
     }
 
     /**

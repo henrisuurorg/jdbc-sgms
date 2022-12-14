@@ -26,14 +26,14 @@ package se.kth.iv1351.sgms.model;
 /**
  * Thrown when create, read or delete of an account fails.
  */
-public class AccountException extends Exception {
+public class InstrumentException extends Exception {
 
     /**
      * Create a new instance thrown because of the specified reason.
      *
      * @param reason Why the exception was thrown.
      */
-    public AccountException(String reason) {
+    public InstrumentException(String reason) {
         super(reason);
     }
 
@@ -43,7 +43,7 @@ public class AccountException extends Exception {
      * @param reason    Why the exception was thrown.
      * @param rootCause The exception that caused this exception to be thrown.
      */
-    public AccountException(String reason, Throwable rootCause) {
+    public InstrumentException(String reason, Throwable rootCause) {
         super(reason, rootCause);
     }
 }

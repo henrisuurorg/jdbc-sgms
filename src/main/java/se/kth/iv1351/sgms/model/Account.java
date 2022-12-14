@@ -92,7 +92,7 @@ public class Account implements AccountDTO {
      * Deposits the specified amount.
      *
      * @param amount The amount to deposit.
-     * @throws AccountException If the specified amount is negative, or if unable to
+     * @throws InstrumentException If the specified amount is negative, or if unable to
      *                          perform the update.
      */
     public void deposit(int amount) throws RejectedException {
@@ -107,7 +107,7 @@ public class Account implements AccountDTO {
      * Withdraws the specified amount.
      *
      * @param amount The amount to withdraw.
-     * @throws AccountException If the specified amount is negative, if the amount
+     * @throws InstrumentException If the specified amount is negative, if the amount
      *                          is larger than the balance, or if unable to perform
      *                          the update.
      */

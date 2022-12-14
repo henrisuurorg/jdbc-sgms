@@ -49,17 +49,22 @@ public class SchoolDAO {
     private static final String BALANCE_COLUMN_NAME = "balance";
     private static final String HOLDER_FK_COLUMN_NAME = HOLDER_PK_COLUMN_NAME;
 
+    private static final String INSTRUMENT_FEE_TABLE_NAME = "instrument_fee";
+    private static final String RENTAL_AGREEMENT_TABLE_NAME = "rental_agreement";
+    private static final String RENTAL_AGREEMENT_DATE_RETURNED_COLUMN_NAME = "date_returned";
     private static final String INSTRUMENT_TABLE_NAME = "rental_instrument";
     private static final String INSTRUMENT_INSTRUMENT_COLUMN_NAME = "instrument";
     private static final String INSTRUMENT_PK_COLUMN_NAME = "rental_instrument_id";
     private static final String INSTRUMENT_BRAND_COLUMN_NAME = "brand";
     private static final String INSTRUMENT_CATEGORY_COLUMN_NAME = "category";
+    private static final String INSTRUMENT_FEE_COLUMN_NAME = "fee";
 
     private Connection connection;
     private PreparedStatement createHolderStmt;
     private PreparedStatement findHolderPKStmt;
     private PreparedStatement createAccountStmt;
     private PreparedStatement findAccountByNameStmt;
+    private PreparedStatement findInstrumentsByTypeStmt;
     private PreparedStatement findAccountByAcctNoStmt;
     private PreparedStatement findAccountByAcctNoStmtLockingForUpdate;
     private PreparedStatement findAllInstrumentsStmt;
@@ -112,20 +117,6 @@ public class SchoolDAO {
         }
     }
 
-    /**
-     * Searches for the account with the specified account number.
-     *
-     * @param acctNo The account number.
-     * @param lockExclusive If true, it will not be possible to perform UPDATE 
-     *                      or DELETE statements on the selected row in the
-     *                      current transaction. Also, the transaction will not
-     *                      be committed when this method returns. If false, no
-     *                      exclusive locks will be created, and the transaction will
-     *                      be committed when this method returns.
-     * @return The account with the specified account number, or <code>null</code> if 
-     *         there is no such account.
-     * @throws SchoolDBException If failed to search for the account.
-     */
     public Account findAccountByAcctNo(String acctNo, boolean lockExclusive)
                                        throws SchoolDBException {
     PreparedStatement stmtToExecute;
@@ -185,6 +176,25 @@ public class SchoolDAO {
         return accounts;
     }
 
+    public List<Instrument> findInstrumentsByType (String instrument) throws SchoolDBException {
+        String failureMsg = "Could not search for specified instruments.";
+        ResultSet result = null;
+        List<Instrument> instruments = new ArrayList<>();
+        try {
+            findInstrumentsByTypeStmt.setString(1, instrument);
+            result = findInstrumentsByTypeStmt.executeQuery();
+            while (result.next()) {
+                instruments.add( new Instrument(result.getString(INSTRUMENT_PK_COLUMN_NAME),result.getString(INSTRUMENT_INSTRUMENT_COLUMN_NAME), result.getString(INSTRUMENT_BRAND_COLUMN_NAME), result.getString(INSTRUMENT_CATEGORY_COLUMN_NAME), result.getString("fee")));
+            }
+            connection.commit();
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        } finally {
+            closeResultSet(failureMsg, result);
+        }
+        return instruments;
+    }
+
     /**
      * Retrieves all existing accounts.
      *
@@ -197,7 +207,7 @@ public class SchoolDAO {
         List<Instrument> instruments = new ArrayList<>();
         try (ResultSet result = findAllInstrumentsStmt.executeQuery()) {
             while (result.next()) {
-                instruments.add( new Instrument(result.getString(INSTRUMENT_PK_COLUMN_NAME),result.getString(INSTRUMENT_INSTRUMENT_COLUMN_NAME), result.getString(INSTRUMENT_BRAND_COLUMN_NAME), result.getString(INSTRUMENT_CATEGORY_COLUMN_NAME)));
+                instruments.add( new Instrument(result.getString(INSTRUMENT_PK_COLUMN_NAME),result.getString(INSTRUMENT_INSTRUMENT_COLUMN_NAME), result.getString(INSTRUMENT_BRAND_COLUMN_NAME), result.getString(INSTRUMENT_CATEGORY_COLUMN_NAME), result.getString("fee")));
             }
             connection.commit();
         } catch (SQLException sqle) {
@@ -297,6 +307,13 @@ public class SchoolDAO {
             + " = h." + HOLDER_PK_COLUMN_NAME + " WHERE h." + HOLDER_COLUMN_NAME + " = ?");
 
         findAllInstrumentsStmt = connection.prepareStatement("SELECT * FROM " + INSTRUMENT_TABLE_NAME);
+
+        findInstrumentsByTypeStmt = connection.prepareStatement("SELECT ri." + INSTRUMENT_PK_COLUMN_NAME + ", ri." + INSTRUMENT_INSTRUMENT_COLUMN_NAME + ", ri." + INSTRUMENT_BRAND_COLUMN_NAME + ", ri." + INSTRUMENT_CATEGORY_COLUMN_NAME + ", if2."+ INSTRUMENT_FEE_COLUMN_NAME + " FROM " + INSTRUMENT_TABLE_NAME +" ri \n" +
+                "FULL JOIN " + RENTAL_AGREEMENT_TABLE_NAME + " ra \n" +
+                "ON ra."+ INSTRUMENT_PK_COLUMN_NAME +" = ri."+ INSTRUMENT_PK_COLUMN_NAME +" \n" +
+                "FULL JOIN "+ INSTRUMENT_FEE_TABLE_NAME +" if2 \n" +
+                "ON ri."+ INSTRUMENT_PK_COLUMN_NAME + " = if2."+ INSTRUMENT_PK_COLUMN_NAME +" \n" +
+                "WHERE " + RENTAL_AGREEMENT_DATE_RETURNED_COLUMN_NAME + " IS NOT NULL OR ra." + INSTRUMENT_PK_COLUMN_NAME + " IS NULL AND "+ INSTRUMENT_INSTRUMENT_COLUMN_NAME +" = ?");
 
         changeBalanceStmt = connection.prepareStatement("UPDATE " + ACCT_TABLE_NAME
             + " SET " + BALANCE_COLUMN_NAME + " = ? WHERE " + ACCT_NO_COLUMN_NAME + " = ? ");

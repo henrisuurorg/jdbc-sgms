@@ -91,13 +91,14 @@ public class BlockingInterpreter {
                         if (cmdLine.getParameter(0).equals("")) {
                             instruments = ctrl.getAllInstruments();
                         } else {
-                            //accounts = ctrl.getAccountsForHolder(cmdLine.getParameter(0));
+                            instruments = ctrl.getInstrumentForType(cmdLine.getParameter(0));
                         }
                         for (InstrumentDTO inst : instruments) {
                             System.out.println("id: " + inst.getRentalInstrumentId() + ", "
                                     + "instrument: " + inst.getInstrument() + ", "
                                     + "brand: " + inst.getBrand() + ", "
-                                    + "category: " + inst.getCategory());
+                                    + "fee: " + inst.getFee()
+                            );
                         }
                         break;
                     case DEPOSIT:
