@@ -31,9 +31,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.kth.iv1351.sgms.model.Account;
-import se.kth.iv1351.sgms.model.AccountDTO;
-import se.kth.iv1351.sgms.model.Instrument;
+import se.kth.iv1351.sgms.model.*;
 
 /**
  * This data access object (DAO) encapsulates all database calls in the bank
@@ -58,18 +56,28 @@ public class SchoolDAO {
     private static final String INSTRUMENT_BRAND_COLUMN_NAME = "brand";
     private static final String INSTRUMENT_CATEGORY_COLUMN_NAME = "category";
     private static final String INSTRUMENT_FEE_COLUMN_NAME = "fee";
+    private static final String STUDENT_PK_COLUMN_NAME = "student_id";
+    private static final String STUDENT_NAME_COLUMN_NAME = "name";
+
 
     private Connection connection;
     private PreparedStatement createHolderStmt;
     private PreparedStatement findHolderPKStmt;
     private PreparedStatement createAccountStmt;
-    private PreparedStatement findAccountByNameStmt;
     private PreparedStatement findInstrumentsByTypeStmt;
     private PreparedStatement findAccountByAcctNoStmt;
     private PreparedStatement findAccountByAcctNoStmtLockingForUpdate;
     private PreparedStatement findAllInstrumentsStmt;
     private PreparedStatement deleteAccountStmt;
     private PreparedStatement changeBalanceStmt;
+    private PreparedStatement findInstrumentByIdStmtLockingForUpdate;
+    private PreparedStatement findInstrumentByIdStmt;
+    private PreparedStatement findStudentByIdStmtLockingForUpdate;
+    private PreparedStatement findStudentByIdStmt;
+    private PreparedStatement findActiveRentalsForStudentStmtLockingForUpdate;
+    private PreparedStatement findActiveRentalsForStudentStmt;
+    private PreparedStatement createRentalAgreementStmt;
+
 
     /**
      * Constructs a new DAO object connected to the bank database.
@@ -146,7 +154,68 @@ public class SchoolDAO {
         }
         return null;
     }
-    
+
+    public Instrument findInstrumentById(String instrumentId, boolean lockExclusive)
+            throws SchoolDBException {
+        PreparedStatement stmtToExecute;
+        if (lockExclusive) {
+            stmtToExecute = findInstrumentByIdStmtLockingForUpdate;
+        } else {
+            stmtToExecute = findInstrumentByIdStmt;
+        }
+
+        String failureMsg = "Could not find instrument!";
+        ResultSet result = null;
+        System.out.println("log1.1: before execution");
+        try {
+            stmtToExecute.setString(1, instrumentId);
+            System.out.println("log1.2: add parameter");
+            System.out.println("log1.3: query: "+stmtToExecute);
+            result = stmtToExecute.executeQuery();
+            System.out.println("log1.4: execution");
+            if (result.next()) {
+                System.out.println("log1.5: return result");
+                return new Instrument(result.getString(INSTRUMENT_PK_COLUMN_NAME),result.getString(INSTRUMENT_INSTRUMENT_COLUMN_NAME), result.getString(INSTRUMENT_BRAND_COLUMN_NAME), result.getString(INSTRUMENT_CATEGORY_COLUMN_NAME), result.getString("fee"));
+            }
+            if (!lockExclusive) {
+                connection.commit();
+            }
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        } finally {
+            closeResultSet(failureMsg, result);
+        }
+        return null;
+    }
+
+    public Student findStudentById (String studentId, boolean lockExclusive)
+            throws SchoolDBException {
+        PreparedStatement stmtToExecute;
+        if (lockExclusive) {
+            stmtToExecute = findStudentByIdStmtLockingForUpdate;
+        } else {
+            stmtToExecute = findStudentByIdStmt;
+        }
+
+        String failureMsg = "Could not search for specified student.";
+        ResultSet result = null;
+        try {
+            stmtToExecute.setString(1, studentId);
+            result = stmtToExecute.executeQuery();
+            if (result.next()) {
+                return new Student(result.getString(STUDENT_PK_COLUMN_NAME),result.getString(STUDENT_NAME_COLUMN_NAME));
+            }
+            if (!lockExclusive) {
+                connection.commit();
+            }
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        } finally {
+            closeResultSet(failureMsg, result);
+        }
+        return null;
+    }
+
     public List<Instrument> findInstrumentsByType (String instrument) throws SchoolDBException {
         String failureMsg = "Could not search for specified instruments.";
         ResultSet result = null;
@@ -174,7 +243,7 @@ public class SchoolDAO {
      * @throws SchoolDBException If failed to search for accounts.
      */
     public List<Instrument> findAllInstruments() throws SchoolDBException {
-        String failureMsg = "Could not list accounts.";
+        String failureMsg = "Could not list instruments.";
         List<Instrument> instruments = new ArrayList<>();
         try (ResultSet result = findAllInstrumentsStmt.executeQuery()) {
             while (result.next()) {
@@ -185,6 +254,35 @@ public class SchoolDAO {
             handleException(failureMsg, sqle);
         }
         return instruments;
+    }
+
+    public ArrayList<RentalAgreement> findActiveRentalsForStudent(String studentId, boolean lockExclusive)
+            throws SchoolDBException {
+        PreparedStatement stmtToExecute;
+        if (lockExclusive) {
+            stmtToExecute = findActiveRentalsForStudentStmtLockingForUpdate;
+        } else {
+            stmtToExecute = findActiveRentalsForStudentStmt;
+        }
+
+        String failureMsg = "Could not search for specified rentals.";
+        ResultSet result = null;
+        ArrayList<RentalAgreement> rentals = new ArrayList<>();
+        try {
+            stmtToExecute.setString(1, studentId);
+            result = stmtToExecute.executeQuery();
+            if (result.next()) {
+                rentals.add(new RentalAgreement(result.getString(INSTRUMENT_PK_COLUMN_NAME), result.getString(STUDENT_PK_COLUMN_NAME), result.getString(RENTAL_AGREEMENT_DATE_RETURNED_COLUMN_NAME), null));
+            }
+            if (!lockExclusive) {
+                connection.commit();
+            }
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        } finally {
+            closeResultSet(failureMsg, result);
+        }
+        return null;
     }
 
     /**
@@ -200,6 +298,23 @@ public class SchoolDAO {
         try {
             changeBalanceStmt.setInt(1, account.getBalance());
             changeBalanceStmt.setString(2, account.getAccountNo());
+            int updatedRows = changeBalanceStmt.executeUpdate();
+            if (updatedRows != 1) {
+                handleException(failureMsg, null);
+            }
+            connection.commit();
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        }
+    }
+
+    public void createRentalAgreement(RentalAgreementDTO rental) throws SchoolDBException {
+        String failureMsg = "Could not create the rental!";
+        try {
+            createRentalAgreementStmt.setString(1, rental.getDateReturned());
+            createRentalAgreementStmt.setString(2, rental.getDateReturned());
+            createRentalAgreementStmt.setString(3, rental.getStudentId());
+            createRentalAgreementStmt.setString(4, rental.getRentalInstrumentId());
             int updatedRows = changeBalanceStmt.executeUpdate();
             if (updatedRows != 1) {
                 handleException(failureMsg, null);
@@ -271,13 +386,12 @@ public class SchoolDAO {
             + HOLDER_TABLE_NAME + " h USING (" + HOLDER_PK_COLUMN_NAME + ") WHERE a." 
             + ACCT_NO_COLUMN_NAME + " = ? FOR UPDATE");
 
-        findAccountByNameStmt = connection.prepareStatement("SELECT a." + ACCT_NO_COLUMN_NAME
-            + ", a." + BALANCE_COLUMN_NAME + ", h." + HOLDER_COLUMN_NAME + " from "
-            + ACCT_TABLE_NAME + " a INNER JOIN "
-            + HOLDER_TABLE_NAME + " h ON a." + HOLDER_FK_COLUMN_NAME
-            + " = h." + HOLDER_PK_COLUMN_NAME + " WHERE h." + HOLDER_COLUMN_NAME + " = ?");
-
-        findAllInstrumentsStmt = connection.prepareStatement("SELECT * FROM " + INSTRUMENT_TABLE_NAME);
+        findAllInstrumentsStmt = connection.prepareStatement("SELECT ri." + INSTRUMENT_PK_COLUMN_NAME + ", ri." + INSTRUMENT_INSTRUMENT_COLUMN_NAME + ", ri." + INSTRUMENT_BRAND_COLUMN_NAME + ", ri." + INSTRUMENT_CATEGORY_COLUMN_NAME + ", if2."+ INSTRUMENT_FEE_COLUMN_NAME + " FROM " + INSTRUMENT_TABLE_NAME +" ri \n" +
+                "FULL JOIN " + RENTAL_AGREEMENT_TABLE_NAME + " ra \n" +
+                "ON ra."+ INSTRUMENT_PK_COLUMN_NAME +" = ri."+ INSTRUMENT_PK_COLUMN_NAME +" \n" +
+                "FULL JOIN "+ INSTRUMENT_FEE_TABLE_NAME +" if2 \n" +
+                "ON ri."+ INSTRUMENT_PK_COLUMN_NAME + " = if2."+ INSTRUMENT_PK_COLUMN_NAME +" \n" +
+                "WHERE " + RENTAL_AGREEMENT_DATE_RETURNED_COLUMN_NAME + " IS NOT NULL OR ra." + INSTRUMENT_PK_COLUMN_NAME + " IS NULL");
 
         findInstrumentsByTypeStmt = connection.prepareStatement("SELECT ri." + INSTRUMENT_PK_COLUMN_NAME + ", ri." + INSTRUMENT_INSTRUMENT_COLUMN_NAME + ", ri." + INSTRUMENT_BRAND_COLUMN_NAME + ", ri." + INSTRUMENT_CATEGORY_COLUMN_NAME + ", if2."+ INSTRUMENT_FEE_COLUMN_NAME + " FROM " + INSTRUMENT_TABLE_NAME +" ri \n" +
                 "FULL JOIN " + RENTAL_AGREEMENT_TABLE_NAME + " ra \n" +
@@ -291,6 +405,37 @@ public class SchoolDAO {
 
         deleteAccountStmt = connection.prepareStatement("DELETE FROM " + ACCT_TABLE_NAME
             + " WHERE " + ACCT_NO_COLUMN_NAME + " = ?");
+
+        findInstrumentByIdStmtLockingForUpdate = connection.prepareStatement("SELECT ri.rental_instrument_id , ri.instrument, ri.brand, if2.fee FROM rental_instrument ri\n" +
+                "FULL JOIN instrument_fee if2 \n" +
+                "ON ri.rental_instrument_id = if2.rental_instrument_id\n" +
+                "WHERE ri.rental_instrument_id = ? FOR UPDATE");
+
+        findInstrumentByIdStmt = connection.prepareStatement("SELECT ri.rental_instrument_id, ri.instrument, ri.brand, if2.fee FROM rental_instrument ri\n" +
+                "FULL JOIN instrument_fee if2 \n" +
+                "ON ri.rental_instrument_id = if2.rental_instrument_id\n" +
+                "WHERE ri.rental_instrument_id = ?");
+
+        findStudentByIdStmtLockingForUpdate = connection.prepareStatement("SELECT student_id, name FROM student s\n" +
+                "WHERE student_id = ? FOR UPDATE");
+
+        findStudentByIdStmt = connection.prepareStatement("\"SELECT student_id, name FROM student s\\n\" +\n" +
+                "WHERE student_id = ?");
+
+        findActiveRentalsForStudentStmtLockingForUpdate = connection.prepareStatement("SELECT ra.rental_agreement_id, ra.student_id, ra.date_rented  FROM rental_agreement ra \n" +
+                "LEFT JOIN student s \n" +
+                "ON ra.student_id = s.student_id \n" +
+                "WHERE date_returned IS NULL\n" +
+                "AND ra.student_id = ? FOR UPDATE");
+
+        findActiveRentalsForStudentStmt = connection.prepareStatement("SELECT ra.rental_agreement_id, ra.student_id, ra.date_rented  FROM rental_agreement ra \n" +
+                "LEFT JOIN student s \n" +
+                "ON ra.student_id = s.student_id \n" +
+                "WHERE date_returned IS NULL\n" +
+                "AND ra.student_id = ? FOR UPDATE");
+
+        createRentalAgreementStmt = connection.prepareStatement("INSERT INTO rental_agreement"
+                + "(date_rented, date_returned, student_id, rental_instrument_id) VALUES (?, ?, ?, ?)");
     }
     private void handleException(String failureMsg, Exception cause) throws SchoolDBException {
         String completeFailureMsg = failureMsg;

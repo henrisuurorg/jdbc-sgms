@@ -79,7 +79,7 @@ public class Controller {
         try {
             return schoolDb.findAllInstruments();
         } catch (Exception e) {
-            throw new InstrumentException("Unable to list accounts.", e);
+            throw new InstrumentException("Unable to list instruments.", e);
         }
     }
 
@@ -170,6 +170,30 @@ public class Controller {
         }
     }
 
+    public void rent(String instrumentId, String studentId) throws RejectedException, InstrumentException {
+        String failureMsg = "Could not rent instrument: " + instrumentId;
+
+        if (instrumentId == null || studentId == null) {
+            throw new InstrumentException(failureMsg);
+        }
+
+        try {
+            Instrument inst = schoolDb.findInstrumentById(instrumentId, false);
+            Student student = schoolDb.findStudentById(studentId, false);
+
+            ArrayList<RentalAgreement> activeRentalsForStudent = schoolDb.findActiveRentalsForStudent(studentId, false);
+            student.addRentals(activeRentalsForStudent);
+            RentalAgreement newRental = student.rent(inst.getRentalInstrumentId());
+
+            schoolDb.createRentalAgreement(newRental);
+        } catch (SchoolDBException bdbe) {
+            throw new InstrumentException(failureMsg, bdbe);
+        } catch (Exception e) {
+            commitOngoingTransaction(failureMsg);
+            throw e;
+        }
+    }
+
     private void commitOngoingTransaction(String failureMsg) throws InstrumentException {
         try {
             schoolDb.commit();
@@ -196,5 +220,10 @@ public class Controller {
         } catch (Exception e) {
             throw new InstrumentException(failureMsg, e);
         }
+    }
+
+    public void test(String instrumentId) throws SchoolDBException {
+        Instrument inst = schoolDb.findInstrumentById(instrumentId, false);
+        System.out.println(inst.getInstrument());
     }
 }

@@ -117,6 +117,11 @@ public class BlockingInterpreter {
                             System.out.println("No such account");
                         }
                         break;
+                    case RENT:
+                        ctrl.rent(cmdLine.getParameter(0),
+                                cmdLine.getParameter(1));
+                    case TEST:
+                        ctrl.test(cmdLine.getParameter(0));
                     default:
                         System.out.println("illegal command");
                 }
