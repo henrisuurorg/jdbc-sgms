@@ -65,6 +65,10 @@ public enum Command {
      */
     RENT,
     /**
+     * List all active agreements.
+     */
+    AGREEMENTS,
+    /**
      * None of the valid commands above was specified.
      */
     ILLEGAL_COMMAND

@@ -30,6 +30,7 @@ import java.util.List;
 import se.kth.iv1351.sgms.model.Account;
 import se.kth.iv1351.sgms.model.AccountDTO;
 import se.kth.iv1351.sgms.model.Instrument;
+import se.kth.iv1351.sgms.model.RentalAgreement;
 
 /**
  * This data access object (DAO) encapsulates all database calls in the bank
@@ -69,6 +70,7 @@ public class SchoolDAO {
     private PreparedStatement findStudentIdByPersonalNumberStmt;
     private PreparedStatement findNofActiveRentalsForStudentStmt;
     private PreparedStatement createRentalAgreementStmt;
+    private PreparedStatement findAllActiveAgreementsStmt;
 
     /**
      * Constructs a new DAO object connected to the bank database.
@@ -298,6 +300,20 @@ public class SchoolDAO {
         }
     }
 
+    public List<RentalAgreement> findAllActiveAgreements () throws SchoolDBException {
+        String failureMsg = "Could not find all agreements.";
+        List<RentalAgreement> rentals = new ArrayList<>();
+        try (ResultSet result = findAllActiveAgreementsStmt.executeQuery()) {
+            while (result.next()) {
+                rentals.add(new RentalAgreement(result.getString("rental_agreement_id"), result.getString("name"), result.getString("personal_number"), result.getString("instrument"), result.getString("brand"), result.getString("fee"), result.getString("date_rented")));
+            }
+            connection.commit();
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        }
+        return rentals;
+    }
+
     private void prepareStatements() throws SQLException {
         createHolderStmt = connection.prepareStatement("INSERT INTO " + HOLDER_TABLE_NAME
             + "(" + HOLDER_COLUMN_NAME + ") VALUES (?)");
@@ -355,6 +371,15 @@ public class SchoolDAO {
 
         createRentalAgreementStmt = connection.prepareStatement("INSERT INTO rental_agreement"
                 + "(date_rented, student_id, rental_instrument_id) VALUES ((?)::DATE, (?)::UUID, (?)::UUID)");
+
+        findAllActiveAgreementsStmt = connection.prepareStatement("SELECT ra.rental_agreement_id, s.name, s.personal_number, ri.instrument, ri.brand , rif.fee, ra.date_rented FROM rental_agreement ra \n" +
+                "LEFT JOIN student s \n" +
+                "ON ra.student_id = s.student_id\n" +
+                "LEFT JOIN rental_instrument ri \n" +
+                "ON ri.rental_instrument_id = ra.rental_instrument_id \n" +
+                "LEFT JOIN instrument_fee rif \n" +
+                "ON rif.rental_instrument_id = ra.rental_instrument_id \n" +
+                "WHERE date_returned IS NULL;");
     }
     private void handleException(String failureMsg, Exception cause) throws SchoolDBException {
         String completeFailureMsg = failureMsg;

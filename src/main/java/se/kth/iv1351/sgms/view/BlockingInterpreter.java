@@ -31,6 +31,7 @@ import se.kth.iv1351.sgms.controller.Controller;
 import se.kth.iv1351.sgms.model.AccountDTO;
 import se.kth.iv1351.sgms.model.Instrument;
 import se.kth.iv1351.sgms.model.InstrumentDTO;
+import se.kth.iv1351.sgms.model.RentalAgreementDTO;
 
 /**
  * Reads and interprets user commands. This command interpreter is blocking, the user
@@ -84,11 +85,13 @@ public class BlockingInterpreter {
                     case QUIT:
                         keepReceivingCmds = false;
                         break;
-                    case NEW:
-                        ctrl.createAccount(cmdLine.getParameter(0));
-                        break;
-                    case DELETE:
-                        ctrl.deleteAccount(cmdLine.getParameter(0));
+                    case AGREEMENTS:
+                        List<? extends RentalAgreementDTO> agreements = null;
+                        agreements = ctrl.listActiveAgreements();
+                        for (RentalAgreementDTO agreement: agreements) {
+                            System.out.println(agreement);
+                            System.out.println("----------------------------------------------------------------------");
+                        }
                         break;
                     case LIST:
                         List<? extends InstrumentDTO> instruments = null;

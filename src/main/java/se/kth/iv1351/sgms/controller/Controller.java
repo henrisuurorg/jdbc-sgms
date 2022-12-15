@@ -79,7 +79,7 @@ public class Controller {
         try {
             return schoolDb.findAllInstruments();
         } catch (Exception e) {
-            throw new InstrumentException("Unable to list accounts.", e);
+            throw new InstrumentException("Unable to list instruments.", e);
         }
     }
 
@@ -110,6 +110,14 @@ public class Controller {
         schoolDb.createRentalAgreement(studentId, rentalInstrumentId);
         commitOngoingTransaction("Could not create rental agreement for student " + studentId + " and instrument " + rentalInstrumentId);
         return null;
+    }
+
+    public List<? extends RentalAgreementDTO> listActiveAgreements() throws RentalAgreementException {
+        try{
+            return schoolDb.findAllActiveAgreements();
+        } catch (Exception e) {
+            throw new RentalAgreementException("Unable to list accounts.", e);
+        }
     }
 
     /**
