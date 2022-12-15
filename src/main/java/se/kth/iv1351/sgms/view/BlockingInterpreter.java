@@ -93,7 +93,7 @@ public class BlockingInterpreter {
                         if (cmdLine.getParameter(0).equals("")) {
                             instruments = ctrl.getAllInstruments();
                         } else {
-                            instruments = ctrl.getInstrumentForType(cmdLine.getParameter(0));
+                            instruments = ctrl.getInstrumentsForType(cmdLine.getParameter(0));
                         }
                         for (InstrumentDTO inst : instruments)
                             System.out.println(inst.toString());

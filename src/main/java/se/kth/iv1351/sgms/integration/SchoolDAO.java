@@ -76,7 +76,7 @@ public class SchoolDAO {
         connection.setAutoCommit(false);
     }
 
-    public List<Instrument> findInstrumentsByType (String instrument) throws SchoolDBException {
+    public List<Instrument> readInstrumentsByType(String instrument) throws SchoolDBException {
         String failureMsg = "Could not search for specified instruments.";
         ResultSet result = null;
         List<Instrument> instruments = new ArrayList<>();
@@ -95,7 +95,7 @@ public class SchoolDAO {
         return instruments;
     }
 
-    public List<Instrument> findAllInstruments() throws SchoolDBException {
+    public List<Instrument> readAllInstruments() throws SchoolDBException {
         String failureMsg = "Could not list all instruments.";
         List<Instrument> instruments = new ArrayList<>();
         try (ResultSet result = findAllInstrumentsStmt.executeQuery()) {
@@ -109,7 +109,7 @@ public class SchoolDAO {
         return instruments;
     }
 
-    public String findStudentIdByPersonalNumber(String studentPersonalNumber) throws SchoolDBException {
+    public String readStudentIdByPersonalNumber(String studentPersonalNumber) throws SchoolDBException {
         String failureMsg = "Could not find student by personal number " + studentPersonalNumber;
         ResultSet result = null;
         try {
@@ -127,7 +127,7 @@ public class SchoolDAO {
         return null;
     }
 
-    public Integer findNofActiveRentalsForStudent(String studentId) throws SchoolDBException {
+    public Integer readNofActiveRentalsForStudent(String studentId) throws SchoolDBException {
         String failureMsg = "Could not find active rentals for student " + studentId;
         ResultSet result = null;
         try {
@@ -164,7 +164,7 @@ public class SchoolDAO {
         }
     }
 
-    public List<RentalAgreement> findAllActiveAgreements () throws SchoolDBException {
+    public List<RentalAgreement> readAllActiveAgreements() throws SchoolDBException {
         String failureMsg = "Could not find all agreements.";
         List<RentalAgreement> rentals = new ArrayList<>();
         try (ResultSet result = findAllActiveAgreementsStmt.executeQuery()) {
@@ -178,7 +178,7 @@ public class SchoolDAO {
         return rentals;
     }
 
-    public void terminateRental(String rentalId) throws SchoolDBException {
+    public void updateRentalDateReturned(String rentalId) throws SchoolDBException {
         String failureMsg = "Could not terminate rental agreement: " + rentalId;
         int updatedRows = 0;
         try {

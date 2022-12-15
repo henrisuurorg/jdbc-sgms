@@ -45,32 +45,31 @@ public class Controller {
 
     public List<? extends InstrumentDTO> getAllInstruments() throws InstrumentException {
         try {
-            return schoolDb.findAllInstruments();
+            return schoolDb.readAllInstruments();
         } catch (Exception e) {
             throw new InstrumentException("Unable to list instruments.", e);
         }
     }
 
-    public List<? extends InstrumentDTO> getInstrumentForType(String instrument) throws InstrumentException {
+    public List<? extends InstrumentDTO> getInstrumentsForType(String instrument) throws InstrumentException {
         if (instrument == null) {
             return new ArrayList<>();
         }
         try {
-            return schoolDb.findInstrumentsByType(instrument);
+            return schoolDb.readInstrumentsByType(instrument);
         } catch (Exception e) {
             throw new InstrumentException("Could not search for instrument.", e);
         }
     }
 
     public String rent(String studentPersonalNumber, String rentalInstrumentId) throws SchoolDBException, InstrumentException {
-        String studentId = schoolDb.findStudentIdByPersonalNumber(studentPersonalNumber);
+        String studentId = schoolDb.readStudentIdByPersonalNumber(studentPersonalNumber);
         if (studentId == null)
             return "Student with personal number " + studentPersonalNumber + " does not exist";
 
-        Integer nofActiveRentalsForStudent = schoolDb.findNofActiveRentalsForStudent(studentId);
+        Integer nofActiveRentalsForStudent = schoolDb.readNofActiveRentalsForStudent(studentId);
         if (nofActiveRentalsForStudent >= 2)
             return  "Student with personal number " + studentPersonalNumber + " already has the maximum number of active rentals.";
-
 
         schoolDb.createRentalAgreement(studentId, rentalInstrumentId);
         commitOngoingTransaction("Could not create rental agreement for student " + studentId + " and instrument " + rentalInstrumentId);
@@ -79,7 +78,7 @@ public class Controller {
 
     public List<? extends RentalAgreementDTO> listActiveAgreements() throws RentalAgreementException {
         try{
-            return schoolDb.findAllActiveAgreements();
+            return schoolDb.readAllActiveAgreements();
         } catch (Exception e) {
             throw new RentalAgreementException("Unable to list accounts.", e);
         }
@@ -94,7 +93,7 @@ public class Controller {
             boolean lockingStatus = schoolDb.lockRentalForUpdate(rental_agreement_id);
             if (!lockingStatus)
                 return "Could not find rental agreement";
-            schoolDb.terminateRental(rental_agreement_id);
+            schoolDb.updateRentalDateReturned(rental_agreement_id);
             commitOngoingTransaction(failureMsg);
             return "Terminated successfully";
         } catch (Exception e) {
