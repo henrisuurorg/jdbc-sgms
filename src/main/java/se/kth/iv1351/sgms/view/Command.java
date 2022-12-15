@@ -37,6 +37,10 @@ public enum Command {
      */
     LIST,
     /**
+     * Command to terminate an ongoing rental of a specified instrument.
+     */
+    TERMINATE,
+    /**
      * Deletes the specified account.
      */
     DELETE,

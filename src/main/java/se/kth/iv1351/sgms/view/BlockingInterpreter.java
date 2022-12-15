@@ -101,6 +101,10 @@ public class BlockingInterpreter {
                             );
                         }
                         break;
+                    case TERMINATE:
+                        // parameter: rental_agreement_id
+                        ctrl.terminate(cmdLine.getParameter(0));
+                        break;
                     case DEPOSIT:
                         ctrl.deposit(cmdLine.getParameter(0), 
                                      Integer.parseInt(cmdLine.getParameter(1)));

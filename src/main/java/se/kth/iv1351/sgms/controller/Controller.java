@@ -197,4 +197,18 @@ public class Controller {
             throw new InstrumentException(failureMsg, e);
         }
     }
+
+    public void terminate(String rental_agreement_id) throws RejectedException, InstrumentException { // DONE
+        String failureMsg = "Could not terminate rental agreement: " + rental_agreement_id;
+
+        if (rental_agreement_id == null) {
+            throw new InstrumentException(failureMsg);
+        }
+
+        try {
+            schoolDb.terminateRental(rental_agreement_id);
+        } catch (Exception e) {
+            throw new InstrumentException(failureMsg, e);
+        }
+    }
 }
