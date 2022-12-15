@@ -26,6 +26,7 @@ package se.kth.iv1351.sgms.integration;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import se.kth.iv1351.sgms.model.Instrument;
 import se.kth.iv1351.sgms.model.RentalAgreement;
@@ -55,6 +56,7 @@ public class SchoolDAO {
     private PreparedStatement createRentalAgreementStmt;
     private PreparedStatement findAllActiveAgreementsStmt;
     private PreparedStatement terminateRentalStmt;
+    private PreparedStatement lockRentalForUpdateStmt;
 
     public SchoolDAO() throws SchoolDBException {
         try {
@@ -189,10 +191,22 @@ public class SchoolDAO {
             if (updatedRows != 1) {
                 handleException(failureMsg, null);
             }
-            connection.commit();
         } catch (SQLException sqle) {
             handleException(failureMsg, sqle);
         }
+    }
+
+    public boolean lockRentalForUpdate(String rentalId) throws SchoolDBException {
+        String failureMsg = "Could not lock rental agreement: " + rentalId;
+        ResultSet result = null;
+        try {
+            lockRentalForUpdateStmt.setString(1, rentalId);
+            result = lockRentalForUpdateStmt.executeQuery();
+            return result.next() && Objects.equals(result.getString("rental_agreement_id"), rentalId);
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        }
+        return false;
     }
 
     private void prepareStatements() throws SQLException {
@@ -237,6 +251,8 @@ public class SchoolDAO {
         terminateRentalStmt = connection.prepareStatement("UPDATE rental_agreement\n" +
                 "SET date_returned = CURRENT_DATE\n" +
                 "WHERE rental_agreement_id = (?)::UUID");
+
+        lockRentalForUpdateStmt = connection.prepareStatement("SELECT rental_agreement_id FROM rental_agreement WHERE rental_agreement_id = (?)::UUID FOR UPDATE;\n");
     }
     private void handleException(String failureMsg, Exception cause) throws SchoolDBException {
         String completeFailureMsg = failureMsg;

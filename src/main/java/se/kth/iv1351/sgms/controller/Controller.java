@@ -85,15 +85,18 @@ public class Controller {
         }
     }
 
-    public void terminate(String rental_agreement_id) throws RentalAgreementException {
+    public String terminate(String rental_agreement_id) throws RentalAgreementException {
         String failureMsg = "Could not terminate rental agreement: " + rental_agreement_id;
-
         if (rental_agreement_id == null) {
             throw new RentalAgreementException(failureMsg);
         }
-
         try {
+            boolean lockingStatus = schoolDb.lockRentalForUpdate(rental_agreement_id);
+            if (!lockingStatus)
+                return "Could not find rental agreement";
             schoolDb.terminateRental(rental_agreement_id);
+            commitOngoingTransaction(failureMsg);
+            return "Terminated successfully";
         } catch (Exception e) {
             throw new RentalAgreementException(failureMsg, e);
         }

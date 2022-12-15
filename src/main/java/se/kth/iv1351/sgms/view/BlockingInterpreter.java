@@ -75,8 +75,7 @@ public class BlockingInterpreter {
                         break;
                     case RENT:
                         // first parameter is students personal number, second parameter is instrument
-                        String status = ctrl.rent(cmdLine.getParameter(0), cmdLine.getParameter(1));
-                        System.out.println(status);
+                        System.out.println(ctrl.rent(cmdLine.getParameter(0), cmdLine.getParameter(1)));
                         break;
                     case QUIT:
                         keepReceivingCmds = false;
@@ -101,7 +100,7 @@ public class BlockingInterpreter {
                         break;
                     case TERMINATE:
                         // parameter: rental_agreement_id
-                        ctrl.terminate(cmdLine.getParameter(0));
+                        System.out.println(ctrl.terminate(cmdLine.getParameter(0)));
                         break;
                     default:
                         System.out.println("illegal command");
