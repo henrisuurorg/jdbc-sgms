@@ -68,7 +68,7 @@ public class Instrument implements InstrumentDTO {
     @Override
     public String toString() {
         StringBuilder stringRepresentation = new StringBuilder();
-        stringRepresentation.append("Account: [");
+        stringRepresentation.append("[");
         stringRepresentation.append("id: ");
         stringRepresentation.append(rentalInstrumentId);
         stringRepresentation.append(", instrument: ");

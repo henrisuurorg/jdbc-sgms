@@ -69,16 +69,14 @@ public class BlockingInterpreter {
                 CmdLine cmdLine = new CmdLine(readNextLine());
                 switch (cmdLine.getCmd()) {
                     case HELP:
-                        for (Command command : Command.values()) {
-                            if (command == Command.ILLEGAL_COMMAND) {
-                                continue;
-                            }
-                            System.out.println(command.toString().toLowerCase());
-                        }
+                        for (Command command : Command.values())
+                            if (command != Command.ILLEGAL_COMMAND)
+                                System.out.println(command.toString().toLowerCase());
                         break;
                     case RENT:
                         // first parameter is students personal number, second parameter is instrument
-                        ctrl.rent(cmdLine.getParameter(0), cmdLine.getParameter(1));
+                        String status = ctrl.rent(cmdLine.getParameter(0), cmdLine.getParameter(1));
+                        System.out.println(status);
                         break;
                     case QUIT:
                         keepReceivingCmds = false;
@@ -91,19 +89,15 @@ public class BlockingInterpreter {
                         }
                         break;
                     case LIST:
+                        // optional parameter: type of instrument
                         List<? extends InstrumentDTO> instruments = null;
                         if (cmdLine.getParameter(0).equals("")) {
                             instruments = ctrl.getAllInstruments();
                         } else {
                             instruments = ctrl.getInstrumentForType(cmdLine.getParameter(0));
                         }
-                        for (InstrumentDTO inst : instruments) {
-                            System.out.println("id: " + inst.getRentalInstrumentId() + ", "
-                                    + "instrument: " + inst.getInstrument() + ", "
-                                    + "brand: " + inst.getBrand() + ", "
-                                    + "fee: " + inst.getFee()
-                            );
-                        }
+                        for (InstrumentDTO inst : instruments)
+                            System.out.println(inst.toString());
                         break;
                     case TERMINATE:
                         // parameter: rental_agreement_id

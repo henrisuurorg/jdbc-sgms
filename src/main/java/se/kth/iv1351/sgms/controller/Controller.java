@@ -64,20 +64,17 @@ public class Controller {
 
     public String rent(String studentPersonalNumber, String rentalInstrumentId) throws SchoolDBException, InstrumentException {
         String studentId = schoolDb.findStudentIdByPersonalNumber(studentPersonalNumber);
-        if (studentId == null) {
-            System.out.println("Student with personal number " + studentPersonalNumber + " does not exist");
-            return null;
-        }
+        if (studentId == null)
+            return "Student with personal number " + studentPersonalNumber + " does not exist";
 
         Integer nofActiveRentalsForStudent = schoolDb.findNofActiveRentalsForStudent(studentId);
-        if (nofActiveRentalsForStudent >= 2) {
-            System.out.println("Student with personal number " + studentPersonalNumber + " already has the maximum number of active rentals.");
-            return null;
-        }
+        if (nofActiveRentalsForStudent >= 2)
+            return  "Student with personal number " + studentPersonalNumber + " already has the maximum number of active rentals.";
+
 
         schoolDb.createRentalAgreement(studentId, rentalInstrumentId);
         commitOngoingTransaction("Could not create rental agreement for student " + studentId + " and instrument " + rentalInstrumentId);
-        return null;
+        return "rental successful";
     }
 
     public List<? extends RentalAgreementDTO> listActiveAgreements() throws RentalAgreementException {
