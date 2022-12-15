@@ -88,7 +88,6 @@ public class BlockingInterpreter {
                         agreements = ctrl.listActiveAgreements();
                         for (RentalAgreementDTO agreement: agreements) {
                             System.out.println(agreement);
-                            System.out.println("----------------------------------------------------------------------");
                         }
                         break;
                     case LIST:
@@ -105,6 +104,10 @@ public class BlockingInterpreter {
                                     + "fee: " + inst.getFee()
                             );
                         }
+                        break;
+                    case TERMINATE:
+                        // parameter: rental_agreement_id
+                        ctrl.terminate(cmdLine.getParameter(0));
                         break;
                     default:
                         System.out.println("illegal command");

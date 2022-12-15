@@ -36,14 +36,6 @@ import se.kth.iv1351.sgms.model.RentalAgreement;
  * database.
  */
 public class SchoolDAO {
-    private static final String HOLDER_TABLE_NAME = "holder";
-    private static final String HOLDER_PK_COLUMN_NAME = "holder_id";
-    private static final String HOLDER_COLUMN_NAME = "name";
-    private static final String ACCT_TABLE_NAME = "account";
-    private static final String ACCT_NO_COLUMN_NAME = "account_no";
-    private static final String BALANCE_COLUMN_NAME = "balance";
-    private static final String HOLDER_FK_COLUMN_NAME = HOLDER_PK_COLUMN_NAME;
-
     private static final String INSTRUMENT_FEE_TABLE_NAME = "instrument_fee";
     private static final String RENTAL_AGREEMENT_TABLE_NAME = "rental_agreement";
     private static final String RENTAL_AGREEMENT_DATE_RETURNED_COLUMN_NAME = "date_returned";
@@ -62,6 +54,7 @@ public class SchoolDAO {
     private PreparedStatement findNofActiveRentalsForStudentStmt;
     private PreparedStatement createRentalAgreementStmt;
     private PreparedStatement findAllActiveAgreementsStmt;
+    private PreparedStatement terminateRentalStmt;
 
     public SchoolDAO() throws SchoolDBException {
         try {
@@ -187,6 +180,21 @@ public class SchoolDAO {
         return rentals;
     }
 
+    public void terminateRental(String rentalId) throws SchoolDBException {
+        String failureMsg = "Could not terminate rental agreement: " + rentalId;
+        int updatedRows = 0;
+        try {
+            terminateRentalStmt.setString(1, rentalId);
+            updatedRows = terminateRentalStmt.executeUpdate();
+            if (updatedRows != 1) {
+                handleException(failureMsg, null);
+            }
+            connection.commit();
+        } catch (SQLException sqle) {
+            handleException(failureMsg, sqle);
+        }
+    }
+
     private void prepareStatements() throws SQLException {
         findAllInstrumentsStmt = connection.prepareStatement("SELECT ri." + INSTRUMENT_PK_COLUMN_NAME + ", ri." + INSTRUMENT_INSTRUMENT_COLUMN_NAME + ", ri." + INSTRUMENT_BRAND_COLUMN_NAME + ", ri." + INSTRUMENT_CATEGORY_COLUMN_NAME + ", if2."+ INSTRUMENT_FEE_COLUMN_NAME + " FROM " + INSTRUMENT_TABLE_NAME +" ri \n" +
                 "FULL JOIN " + RENTAL_AGREEMENT_TABLE_NAME + " ra \n" +
@@ -200,7 +208,7 @@ public class SchoolDAO {
                 "ON ra."+ INSTRUMENT_PK_COLUMN_NAME +" = ri."+ INSTRUMENT_PK_COLUMN_NAME +" \n" +
                 "FULL JOIN "+ INSTRUMENT_FEE_TABLE_NAME +" if2 \n" +
                 "ON ri."+ INSTRUMENT_PK_COLUMN_NAME + " = if2."+ INSTRUMENT_PK_COLUMN_NAME +" \n" +
-                "WHERE " + RENTAL_AGREEMENT_DATE_RETURNED_COLUMN_NAME + " IS NOT NULL OR ra." + INSTRUMENT_PK_COLUMN_NAME + " IS NULL AND "+ INSTRUMENT_INSTRUMENT_COLUMN_NAME +" = ?");
+                "WHERE (" + RENTAL_AGREEMENT_DATE_RETURNED_COLUMN_NAME + " IS NOT NULL OR ra." + INSTRUMENT_PK_COLUMN_NAME + " IS NULL) AND "+ INSTRUMENT_INSTRUMENT_COLUMN_NAME +" = ?");
 
         findStudentIdByPersonalNumberStmt = connection.prepareStatement("SELECT * FROM student WHERE personal_number = ?");
 
@@ -225,6 +233,10 @@ public class SchoolDAO {
                 "LEFT JOIN instrument_fee rif \n" +
                 "ON rif.rental_instrument_id = ra.rental_instrument_id \n" +
                 "WHERE date_returned IS NULL;");
+
+        terminateRentalStmt = connection.prepareStatement("UPDATE rental_agreement\n" +
+                "SET date_returned = CURRENT_DATE\n" +
+                "WHERE rental_agreement_id = (?)::UUID");
     }
     private void handleException(String failureMsg, Exception cause) throws SchoolDBException {
         String completeFailureMsg = failureMsg;

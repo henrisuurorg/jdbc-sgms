@@ -39,11 +39,6 @@ import se.kth.iv1351.sgms.model.*;
 public class Controller {
     private final SchoolDAO schoolDb;
 
-    /**
-     * Creates a new instance, and retrieves a connection to the database.
-     * 
-     * @throws SchoolDBException If unable to connect to the database.
-     */
     public Controller() throws SchoolDBException {
         schoolDb = new SchoolDAO();
     }
@@ -90,6 +85,20 @@ public class Controller {
             return schoolDb.findAllActiveAgreements();
         } catch (Exception e) {
             throw new RentalAgreementException("Unable to list accounts.", e);
+        }
+    }
+
+    public void terminate(String rental_agreement_id) throws RentalAgreementException {
+        String failureMsg = "Could not terminate rental agreement: " + rental_agreement_id;
+
+        if (rental_agreement_id == null) {
+            throw new RentalAgreementException(failureMsg);
+        }
+
+        try {
+            schoolDb.terminateRental(rental_agreement_id);
+        } catch (Exception e) {
+            throw new RentalAgreementException(failureMsg, e);
         }
     }
 

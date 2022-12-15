@@ -28,9 +28,16 @@ package se.kth.iv1351.sgms.view;
  * Defines all commands that can be performed by a user of the chat application.
  */
 public enum Command {
+    /**
+     * List all instruments.
+     */
     LIST,
     /**
-     * Deletes the specified account.
+     * Terminate a rental agreement.
+     */
+    TERMINATE,
+    /**
+     * Show all commands.
      */
     HELP,
     /**
