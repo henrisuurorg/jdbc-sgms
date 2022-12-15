@@ -11,8 +11,7 @@
    1. Change the url to match your database.
 1. Create the tables by running `src/main/resources/create_db.sql`  
 1. Populate the database by running `src/main/resources/populate_db.sql`
-1. Build the project with the command `mvn install`
-1. Run the program with the command `mvn exec:java`
+1. Run the program from `src/main/java/se/kth/iv1351/sgms/startup/Main.java`
 
 ## Commands for the program
 

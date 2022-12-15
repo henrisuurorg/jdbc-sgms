@@ -75,6 +75,8 @@ public class Instrument implements InstrumentDTO {
         stringRepresentation.append(instrument);
         stringRepresentation.append(", brand: ");
         stringRepresentation.append(brand);
+        stringRepresentation.append(", fee: ");
+        stringRepresentation.append(fee);
         stringRepresentation.append("]");
         return stringRepresentation.toString();
     }

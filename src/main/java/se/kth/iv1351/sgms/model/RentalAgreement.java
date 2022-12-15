@@ -50,13 +50,13 @@ public class RentalAgreement implements RentalAgreementDTO{
 
     @Override
     public String toString() {
-        return "[" + rentalAgreementId  +
-                "|" + name +
-                "|" + personalNumber +
-                "|" + instrument +
-                "|" + brand +
-                "|" + fee +
-                "|" + dateRented +
+        return "[rental_id: " + rentalAgreementId  +
+                ", student: " + name +
+                ", pn: " + personalNumber +
+                ", instrument: " + instrument +
+                " " + brand +
+                ", fee: " + fee +
+                ", since: " + dateRented +
                 ']';
     }
 }
