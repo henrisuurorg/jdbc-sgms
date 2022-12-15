@@ -94,6 +94,24 @@ public class Controller {
         }
     }
 
+    public String rent(String studentPersonalNumber, String rentalInstrumentId) throws SchoolDBException, InstrumentException {
+        String studentId = schoolDb.findStudentIdByPersonalNumber(studentPersonalNumber);
+        if (studentId == null) {
+            System.out.println("Student with personal number " + studentPersonalNumber + " does not exist");
+            return null;
+        }
+
+        Integer nofActiveRentalsForStudent = schoolDb.findNofActiveRentalsForStudent(studentId);
+        if (nofActiveRentalsForStudent >= 2) {
+            System.out.println("Student with personal number " + studentPersonalNumber + " already has the maximum number of active rentals.");
+            return null;
+        }
+
+        schoolDb.createRentalAgreement(studentId, rentalInstrumentId);
+        commitOngoingTransaction("Could not create rental agreement for student " + studentId + " and instrument " + rentalInstrumentId);
+        return null;
+    }
+
     /**
      * Retrieves the account with the specified number.
      * 

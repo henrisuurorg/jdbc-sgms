@@ -77,6 +77,10 @@ public class BlockingInterpreter {
                             System.out.println(command.toString().toLowerCase());
                         }
                         break;
+                    case RENT:
+                        // first parameter is students personal number, second parameter is instrument
+                        ctrl.rent(cmdLine.getParameter(0), cmdLine.getParameter(1));
+                        break;
                     case QUIT:
                         keepReceivingCmds = false;
                         break;

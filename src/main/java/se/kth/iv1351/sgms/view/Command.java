@@ -61,6 +61,10 @@ public enum Command {
      */
     QUIT,
     /**
+     * Rent an instrument.
+     */
+    RENT,
+    /**
      * None of the valid commands above was specified.
      */
     ILLEGAL_COMMAND
