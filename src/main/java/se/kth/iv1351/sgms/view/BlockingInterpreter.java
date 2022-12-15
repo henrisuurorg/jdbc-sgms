@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Scanner;
 
 import se.kth.iv1351.sgms.controller.Controller;
-import se.kth.iv1351.sgms.model.AccountDTO;
-import se.kth.iv1351.sgms.model.Instrument;
 import se.kth.iv1351.sgms.model.InstrumentDTO;
 import se.kth.iv1351.sgms.model.RentalAgreementDTO;
 
@@ -106,22 +104,6 @@ public class BlockingInterpreter {
                                     + "brand: " + inst.getBrand() + ", "
                                     + "fee: " + inst.getFee()
                             );
-                        }
-                        break;
-                    case DEPOSIT:
-                        ctrl.deposit(cmdLine.getParameter(0), 
-                                     Integer.parseInt(cmdLine.getParameter(1)));
-                        break;
-                    case WITHDRAW:
-                        ctrl.withdraw(cmdLine.getParameter(0), 
-                                      Integer.parseInt(cmdLine.getParameter(1)));
-                        break;
-                    case BALANCE:
-                        AccountDTO acct = ctrl.getAccount(cmdLine.getParameter(0));
-                        if (acct != null) {
-                            System.out.println(acct.getBalance());
-                        } else {
-                            System.out.println("No such account");
                         }
                         break;
                     default:

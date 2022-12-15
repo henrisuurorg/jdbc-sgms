@@ -48,33 +48,6 @@ public class Controller {
         schoolDb = new SchoolDAO();
     }
 
-    /**
-     * Creates a new account for the specified account holder.
-     * 
-     * @param holderName The account holder's name.
-     * @throws InstrumentException If unable to create account.
-     */
-    public void createAccount(String holderName) throws InstrumentException {
-        String failureMsg = "Could not create account for: " + holderName;
-
-        if (holderName == null) {
-            throw new InstrumentException(failureMsg);
-        }
-
-        try {
-            schoolDb.createAccount(new Account(holderName));
-        } catch (Exception e) {
-            throw new InstrumentException(failureMsg, e);
-        }
-    }
-
-    /**
-     * Lists all accounts in the whole bank.
-     * 
-     * @return A list containing all accounts. The list is empty if there are no
-     *         accounts.
-     * @throws InstrumentException If unable to retrieve accounts.
-     */
     public List<? extends InstrumentDTO> getAllInstruments() throws InstrumentException {
         try {
             return schoolDb.findAllInstruments();
@@ -120,82 +93,6 @@ public class Controller {
         }
     }
 
-    /**
-     * Retrieves the account with the specified number.
-     * 
-     * @param acctNo The number of the searched account.
-     * @return The account with the specified account number, or <code>null</code>
-     *         if there is no such account.
-     * @throws InstrumentException If unable to retrieve the account.
-     */
-    public AccountDTO getAccount(String acctNo) throws InstrumentException {
-        if (acctNo == null) {
-            return null;
-        }
-
-        try {
-            return schoolDb.findAccountByAcctNo(acctNo, false);
-        } catch (Exception e) {
-            throw new InstrumentException("Could not search for account.", e);
-        }
-    }
-
-    /**
-     * Deposits the specified amount to the account with the specified account
-     * number.
-     * 
-     * @param acctNo The number of the account to which to deposit.
-     * @param amt    The amount to deposit.
-     * @throws RejectedException If not allowed to deposit the specified amount.
-     * @throws InstrumentException  If failed to deposit.
-     */
-    public void deposit(String acctNo, int amt) throws RejectedException, InstrumentException {
-        String failureMsg = "Could not deposit to account: " + acctNo;
-
-        if (acctNo == null) {
-            throw new InstrumentException(failureMsg);
-        }
-
-        try {
-            Account acct = schoolDb.findAccountByAcctNo(acctNo, true);
-            acct.deposit(amt);
-            schoolDb.updateAccount(acct);
-        } catch (SchoolDBException bdbe) {
-            throw new InstrumentException(failureMsg, bdbe);
-        } catch (Exception e) {
-            commitOngoingTransaction(failureMsg);
-            throw e;
-        }
-    }
-
-    /**
-     * Withdraws the specified amount from the account with the specified account
-     * number.
-     * 
-     * @param acctNo The number of the account from which to withdraw.
-     * @param amt    The amount to withdraw.
-     * @throws RejectedException If not allowed to withdraw the specified amount.
-     * @throws InstrumentException  If failed to withdraw.
-     */
-    public void withdraw(String acctNo, int amt) throws RejectedException, InstrumentException {
-        String failureMsg = "Could not withdraw from account: " + acctNo;
-
-        if (acctNo == null) {
-            throw new InstrumentException(failureMsg);
-        }
-
-        try {
-            Account acct = schoolDb.findAccountByAcctNo(acctNo, true);
-            acct.withdraw(amt);
-            schoolDb.updateAccount(acct);
-        } catch (SchoolDBException bdbe) {
-            throw new InstrumentException(failureMsg, bdbe);
-        } catch (Exception e) {
-            commitOngoingTransaction(failureMsg);
-            throw e;
-        }
-    }
-
     private void commitOngoingTransaction(String failureMsg) throws InstrumentException {
         try {
             schoolDb.commit();
@@ -204,23 +101,4 @@ public class Controller {
         }
     }
 
-    /**
-     * Deletes the account with the specified account number.
-     * 
-     * @param acctNo The number of the account that shall be deleted.
-     * @throws InstrumentException If failed to delete the specified account.
-     */
-    public void deleteAccount(String acctNo) throws InstrumentException {
-        String failureMsg = "Could not delete account: " + acctNo;
-
-        if (acctNo == null) {
-            throw new InstrumentException(failureMsg);
-        }
-
-        try {
-            schoolDb.deleteAccount(acctNo);
-        } catch (Exception e) {
-            throw new InstrumentException(failureMsg, e);
-        }
-    }
 }

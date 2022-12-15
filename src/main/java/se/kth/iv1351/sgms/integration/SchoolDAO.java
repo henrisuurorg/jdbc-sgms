@@ -27,8 +27,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.kth.iv1351.sgms.model.Account;
-import se.kth.iv1351.sgms.model.AccountDTO;
 import se.kth.iv1351.sgms.model.Instrument;
 import se.kth.iv1351.sgms.model.RentalAgreement;
 
@@ -57,13 +55,6 @@ public class SchoolDAO {
     private static final String INSTRUMENT_FEE_COLUMN_NAME = "fee";
 
     private Connection connection;
-    private PreparedStatement createHolderStmt;
-    private PreparedStatement findHolderPKStmt;
-    private PreparedStatement createAccountStmt;
-    private PreparedStatement findAccountByAcctNoStmt;
-    private PreparedStatement findAccountByAcctNoStmtLockingForUpdate;
-    private PreparedStatement deleteAccountStmt;
-    private PreparedStatement changeBalanceStmt;
 
     private PreparedStatement findInstrumentsByTypeStmt;
     private PreparedStatement findAllInstrumentsStmt;
@@ -72,9 +63,6 @@ public class SchoolDAO {
     private PreparedStatement createRentalAgreementStmt;
     private PreparedStatement findAllActiveAgreementsStmt;
 
-    /**
-     * Constructs a new DAO object connected to the bank database.
-     */
     public SchoolDAO() throws SchoolDBException {
         try {
             connectToSgmsDB();
@@ -83,121 +71,6 @@ public class SchoolDAO {
             throw new SchoolDBException("Could not connect to datasource.", exception);
         }
     }
-
-    /**
-     * Creates a new account.
-     *
-     * @param account The account to create.
-     * @throws SchoolDBException If failed to create the specified account.
-     */
-    public void createAccount(AccountDTO account) throws SchoolDBException {
-        String failureMsg = "Could not create the account: " + account;
-        int updatedRows = 0;
-        try {
-            int holderPK = findHolderPKByName(account.getHolderName());
-            if (holderPK == 0) {
-                createHolderStmt.setString(1, account.getHolderName());
-                updatedRows = createHolderStmt.executeUpdate();
-                if (updatedRows != 1) {
-                    handleException(failureMsg, null);
-                }
-                holderPK = findHolderPKByName(account.getHolderName());
-            }
-
-            createAccountStmt.setInt(1, createAccountNo());
-            createAccountStmt.setInt(2, account.getBalance());
-            createAccountStmt.setInt(3, holderPK);
-            updatedRows = createAccountStmt.executeUpdate();
-            if (updatedRows != 1) {
-                handleException(failureMsg, null);
-            }
-
-            connection.commit();
-        } catch (SQLException sqle) {
-            handleException(failureMsg, sqle);
-        }
-    }
-
-    public Account findAccountByAcctNo(String acctNo, boolean lockExclusive)
-                                       throws SchoolDBException {
-    PreparedStatement stmtToExecute;
-        if (lockExclusive) {
-            stmtToExecute = findAccountByAcctNoStmtLockingForUpdate;
-        } else {
-            stmtToExecute = findAccountByAcctNoStmt;
-        }
-
-        String failureMsg = "Could not search for specified account.";
-        ResultSet result = null;
-        try {
-            stmtToExecute.setString(1, acctNo);
-            result = stmtToExecute.executeQuery();
-            if (result.next()) {
-                return new Account(result.getString(ACCT_NO_COLUMN_NAME),
-                                   result.getString(HOLDER_COLUMN_NAME),
-                                   result.getInt(BALANCE_COLUMN_NAME));
-            }
-            if (!lockExclusive) {
-                connection.commit();
-            }
-        } catch (SQLException sqle) {
-            handleException(failureMsg, sqle);
-        } finally {
-            closeResultSet(failureMsg, result);
-        }
-        return null;
-    }
-
-
-
-    /**
-     * Changes the balance of the account with the number of the specified
-     * <code>AccountDTO</code> object. The balance is set to the value in the specified
-     * <code>AccountDTO</code>.
-     *
-     * @param account The account to update.
-     * @throws SchoolDBException If unable to update the specified account.
-     */
-    public void updateAccount(AccountDTO account) throws SchoolDBException {
-        String failureMsg = "Could not update the account: " + account;
-        try {
-            changeBalanceStmt.setInt(1, account.getBalance());
-            changeBalanceStmt.setString(2, account.getAccountNo());
-            int updatedRows = changeBalanceStmt.executeUpdate();
-            if (updatedRows != 1) {
-                handleException(failureMsg, null);
-            }
-            connection.commit();
-        } catch (SQLException sqle) {
-            handleException(failureMsg, sqle);
-        }
-    }
-
-    /**
-     * Deletes the account with the specified account number.
-     *
-     * @param acctNo The account to delete.
-     * @throws SchoolDBException If unable to delete the specified account.
-     */
-    public void deleteAccount(String acctNo) throws SchoolDBException {
-        String failureMsg = "Could not delete account: " + acctNo;
-        try {
-            deleteAccountStmt.setString(1, acctNo);
-            int updatedRows = deleteAccountStmt.executeUpdate();
-            if (updatedRows != 1) {
-                handleException(failureMsg, null);
-            }
-            connection.commit();
-        } catch (SQLException sqle) {
-            handleException(failureMsg, sqle);
-        }
-    }
-
-    /**
-     * Commits the current transaction.
-     * 
-     * @throws SchoolDBException If unable to commit the current transaction.
-     */
     public void commit() throws SchoolDBException {
         try {
             connection.commit();
@@ -315,34 +188,6 @@ public class SchoolDAO {
     }
 
     private void prepareStatements() throws SQLException {
-        createHolderStmt = connection.prepareStatement("INSERT INTO " + HOLDER_TABLE_NAME
-            + "(" + HOLDER_COLUMN_NAME + ") VALUES (?)");
-
-        createAccountStmt = connection.prepareStatement("INSERT INTO " + ACCT_TABLE_NAME
-            + "(" + ACCT_NO_COLUMN_NAME + ", " + BALANCE_COLUMN_NAME + ", "
-            + HOLDER_FK_COLUMN_NAME + ") VALUES (?, ?, ?)");
-
-        findHolderPKStmt = connection.prepareStatement("SELECT " + HOLDER_PK_COLUMN_NAME
-            + " FROM " + HOLDER_TABLE_NAME + " WHERE " + HOLDER_COLUMN_NAME + " = ?");
-
-        findAccountByAcctNoStmt = connection.prepareStatement("SELECT a." + ACCT_NO_COLUMN_NAME
-            + ", a." + BALANCE_COLUMN_NAME + ", h." + HOLDER_COLUMN_NAME + " from "
-            + ACCT_TABLE_NAME + " a INNER JOIN " + HOLDER_TABLE_NAME + " h USING ("
-            + HOLDER_PK_COLUMN_NAME + ") WHERE a." + ACCT_NO_COLUMN_NAME + " = ?");
-
-        findAccountByAcctNoStmtLockingForUpdate = connection.prepareStatement("SELECT a." 
-            + ACCT_NO_COLUMN_NAME + ", a." + BALANCE_COLUMN_NAME + ", h." 
-            + HOLDER_COLUMN_NAME + " from " + ACCT_TABLE_NAME + " a INNER JOIN " 
-            + HOLDER_TABLE_NAME + " h USING (" + HOLDER_PK_COLUMN_NAME + ") WHERE a." 
-            + ACCT_NO_COLUMN_NAME + " = ? FOR UPDATE");
-
-
-        changeBalanceStmt = connection.prepareStatement("UPDATE " + ACCT_TABLE_NAME
-                + " SET " + BALANCE_COLUMN_NAME + " = ? WHERE " + ACCT_NO_COLUMN_NAME + " = ? ");
-
-        deleteAccountStmt = connection.prepareStatement("DELETE FROM " + ACCT_TABLE_NAME
-                + " WHERE " + ACCT_NO_COLUMN_NAME + " = ?");
-
         findAllInstrumentsStmt = connection.prepareStatement("SELECT ri." + INSTRUMENT_PK_COLUMN_NAME + ", ri." + INSTRUMENT_INSTRUMENT_COLUMN_NAME + ", ri." + INSTRUMENT_BRAND_COLUMN_NAME + ", ri." + INSTRUMENT_CATEGORY_COLUMN_NAME + ", if2."+ INSTRUMENT_FEE_COLUMN_NAME + " FROM " + INSTRUMENT_TABLE_NAME +" ri \n" +
                 "FULL JOIN " + RENTAL_AGREEMENT_TABLE_NAME + " ra \n" +
                 "ON ra."+ INSTRUMENT_PK_COLUMN_NAME +" = ri."+ INSTRUMENT_PK_COLUMN_NAME +" \n" +
@@ -405,19 +250,6 @@ public class SchoolDAO {
         }
     }
 
-    private int createAccountNo() {
-        return (int)Math.floor(Math.random() * Integer.MAX_VALUE);
-    }
-
-    private int findHolderPKByName(String holderName) throws SQLException {
-        ResultSet result = null;
-        findHolderPKStmt.setString(1, holderName);
-        result = findHolderPKStmt.executeQuery();
-        if (result.next()) {
-            return result.getInt(HOLDER_PK_COLUMN_NAME);
-        }
-        return 0;
-    }
 
 
 }
